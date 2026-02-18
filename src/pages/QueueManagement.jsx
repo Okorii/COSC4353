@@ -11,6 +11,7 @@ const groomers = [
 
 // services
 const services = [
+  { id: "all", name: "Services", minutes: 0 },
   { id: "quick", name: "Quick Wash", minutes: 20 },
   { id: "full", name: "Full Groom", minutes: 60 },
   { id: "nails", name: "Nail Trim", minutes: 10 },
@@ -55,6 +56,8 @@ const initialAppointments = [
 export default function QueueManagement() {
   //select groomer
   const [selectedGroomerId, setSelectedGroomerId] = useState("all");
+  //select specific appointment service
+  const [selectedServiceId, setSelectedServiceId] = useState("all");
   //select date
   const [selectdate, setdate] = useState(new Date());
   //manage appointments
@@ -69,23 +72,23 @@ export default function QueueManagement() {
   return map;
 }, []);
 
-
-// which appointments to select based on which groomer selected
 const allappointments = useMemo(() => {
-   let list;
+  let list = appointments;
 
-  if (selectedGroomerId === "all") {
-    // all appointments
-    list = appointments;
-  } else {
-    // filter by specific groomer
-    list = appointments.filter(function(a) {
-      return a.groomerId === selectedGroomerId;
-    });
+  // by groomer
+  if (selectedGroomerId !== "all") {
+    list = list.filter((a) => a.groomerId === selectedGroomerId);
   }
-//return by start time
-return [...list].sort((x, y) => x.start.localeCompare(y.start));
-}, [appointments, selectedGroomerId]);
+  // by groomer
+  if (selectedServiceId !== "all") {
+    list = list.filter((a) => a.serviceId === selectedServiceId);
+  }
+
+  // order by time
+  return [...list].sort((x, y) => x.start.localeCompare(y.start));
+}, [appointments, selectedGroomerId, selectedServiceId]);
+
+
 
 //appointments in queue
 const queueLength = allappointments.length;
@@ -172,11 +175,12 @@ const prioritycolor = (priority) => ({
   return (
     <div style={{ //background
         minHeight: "100vh", 
-        width: "100%", 
+        width: "100vw", 
         background: "#c4e7e5", 
         color: "#000000", 
         fontFamily: "system-ui, Arial", 
-        padding: 20 
+        padding: 20 ,
+        boxSizing: "border-box",
         }}>
 
       <div style={{ 
@@ -204,22 +208,33 @@ const prioritycolor = (priority) => ({
               <button onClick={nextDay} style={arrowbuttons}>→</button>
             </div>
           </div>
-            {/*date*/}
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <select
-              value={selectedGroomerId}
-              onChange={(e) => { setSelectedGroomerId(e.target.value); setmessage(""); }}
-              style={selectgroomer}
-            >
-              {groomers.map((g) => (
-                <option key={g.id} value={g.id}>{g.name}</option>
-              ))}
-            </select>
+          
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
 
-            <button onClick={serveNext} style={Servenextbutton}>Serve Next</button>
-          </div>
+    {/*groomer dropdown*/}
+        <select
+        value={selectedGroomerId}
+        onChange={(e) => { setSelectedGroomerId(e.target.value); setmessage(""); }}
+        style={selectgroomer}
+        >
+        {groomers.map((g) => (
+        <option key={g.id} value={g.id}>{g.name}</option>
+      ))}
+        </select>
+
+      {/*service dropdown*/}
+        <select
+        value={selectedServiceId}
+        onChange={(e) => { setSelectedServiceId(e.target.value); setmessage(""); }}
+        style={selectgroomer}  
+        >
+        {services.map((s) => (
+        <option key={s.id} value={s.id}>{s.name}</option>
+      ))}
+        </select>
+    <button onClick={serveNext} style={Servenextbutton}>Serve Next</button>
         </div>
-
+        </div>
         {/*shows the message box*/}
         {message && (
           <div style={{
