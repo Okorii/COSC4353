@@ -23,6 +23,7 @@ Different screens
 - Admin Dashboard
 - Service Management
 - Queue Management
+- Queue History screen
 
 Run Locally
 

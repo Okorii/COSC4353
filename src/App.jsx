@@ -1,58 +1,10 @@
-
-//only shows service management
-/*
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import QueueStatus from "./pages/QueueStatus";
-import ServiceManagement from "./pages/ServiceManagement";
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <div style={{ padding: 20 }}>
-        <nav style={{ marginBottom: 20, display: "flex", gap: 20 }}>
-          <Link to="/">Queue Status</Link>
-          <Link to="/service-management">Service Management</Link>
-        </nav>
-
-        <Routes>
-          <Route path="/" element={<QueueStatus />} />
-          <Route path="/service-management" element={<ServiceManagement />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
-  );
-}
-
-*/
-
-// background doesnt fit properly
-/*
-import { useState } from "react";
-import QueueManagement from "./pages/QueueManagement.jsx";
-import ServiceManagement from "./pages/ServiceManagement.jsx";
-
-export default function App() {
-  const [page, setPage] = useState("queue");
-
-  return (
-    <div>
-      <div style={{ display: "flex", gap: 10, padding: 12 }}>
-        <button onClick={() => setPage("queue")}>Queue Management</button>
-        <button onClick={() => setPage("service")}>Service Management</button>
-      </div>
-
-      {page === "queue" ? <QueueManagement /> : <ServiceManagement />}
-    </div>
-  );
-}
-*/
-
 import { useState } from "react";
 import QueueManagement from "./pages/QueueManagement.jsx";
 import ServiceManagement from "./pages/ServiceManagement.jsx";
 import QueueStatus from "./pages/QueueStatus.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import JoinQueue from "./pages/JoinQueue.jsx";
+import History from "./pages/History.jsx";
 
 export default function App() {
   const [page, setPage] = useState("queue");
@@ -79,7 +31,9 @@ export default function App() {
         <button style={tabBtn(page === "join")} onClick={() => setPage("join")}>
           Join Queue
         </button>
-  
+        <button style={tabBtn(page === "history")} onClick={() => setPage("history")}>
+          History
+        </button>
       </div>
 
       <div style={pageWrap}>
@@ -90,13 +44,17 @@ export default function App() {
         ) : page === "status" ? (
           <QueueStatus />
         ) : page === "admin" ? (
-          <AdminDashboard 
-            goToQueue={() => setPage("queue")}
-            goToServices={() => setPage("service")}/>
-        ) : (
-          <JoinQueue 
-            goToStatus={() => setPage("status")} />
-        )}
+           <AdminDashboard 
+    goToQueue={() => setPage("queue")}
+    goToServices={() => setPage("service")}
+  />
+) : page === "join" ? (
+  <JoinQueue 
+    goToStatus={() => setPage("status")} 
+  />
+  ):(
+  <History/>
+  )}
       </div>
     </div>
   );
