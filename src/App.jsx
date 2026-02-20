@@ -51,6 +51,8 @@ import { useState } from "react";
 import QueueManagement from "./pages/QueueManagement.jsx";
 import ServiceManagement from "./pages/ServiceManagement.jsx";
 import QueueStatus from "./pages/QueueStatus.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+import JoinQueue from "./pages/JoinQueue.jsx";
 
 export default function App() {
   const [page, setPage] = useState("queue");
@@ -69,6 +71,15 @@ export default function App() {
         <button style={tabBtn(page === "status")} onClick={() => setPage("status")}>
           Queue Status
         </button>
+
+        <button style={tabBtn(page === "admin")} onClick={() => setPage("admin")}>
+          Admin Dashboard
+        </button>
+
+        <button style={tabBtn(page === "join")} onClick={() => setPage("join")}>
+          Join Queue
+        </button>
+  
       </div>
 
       <div style={pageWrap}>
@@ -76,8 +87,15 @@ export default function App() {
           <QueueManagement />
         ) : page === "service" ? (
           <ServiceManagement />
-        ) : (
+        ) : page === "status" ? (
           <QueueStatus />
+        ) : page === "admin" ? (
+          <AdminDashboard 
+            goToQueue={() => setPage("queue")}
+            goToServices={() => setPage("service")}/>
+        ) : (
+          <JoinQueue 
+            goToStatus={() => setPage("status")} />
         )}
       </div>
     </div>
