@@ -1,0 +1,121 @@
+/* Page background */
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e1e2f, #2b2b45);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+}
+
+h1 {
+    margin-bottom: 40px;
+    font-size: 48px;
+}
+
+/* Login / Register container */
+.container {
+    background: grey;
+    padding: 25px;
+    border-radius: 15px;
+    width: 400px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Form layout */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 10px;
+    color: black;
+}
+
+input {
+    padding: 8px;
+    margin-top: 5px;
+    color: black;
+}
+
+/* Buttons */
+button {
+    margin-top: 20px;
+    padding: 12px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    background-color: green;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+/* Dashboard layout */
+.dashboard-grid {
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.card {
+    background: grey;
+    border-radius: 20px;
+    padding: 20px;
+}
+
+/* Overview section */
+.queue-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.label {
+    color: black;
+}
+
+.big-number {
+    font-size: 64px;
+    font-weight: bold;
+    color: #0f766e;
+}
+
+.muted {
+    color: black;
+}
+
+/* Notification box */
+.text {
+    font-size: 18px;
+    color: black;
+    background-color: rgb(192, 189, 189);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Services full width */
+.services {
+    grid-column: 1 / -1;
+}
+
+/* JS message */
+#message {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #ffd166;
+}

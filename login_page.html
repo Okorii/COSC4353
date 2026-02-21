@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>My Login Website</title>
+        <link rel="stylesheet" href="style_123.css">            <!-- Connect CSS -->
+    </head>
+
+    <body>
+
+        <h1>Welcome!</h1>
+
+        <div class="container">         <!--division box: We give it a class so CSS can style it.-->
+            <h2>Sign in</h2>
+
+            <form>
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" placeholder="Enter Email" required>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter Password" required>
+
+            </form>
+
+            <button id="btn">LOGIN</button>          <!--Creates a clickable button / id="btn" = gives JavaScript something to grab later-->
+            <p id="message"></p>            <!--Empty paragraph — JavaScript will insert text here later-->
+        </div>
+
+        <script src="script.js"></script>           <!-- Connect JavaScript -->
+
+    </body>
+</html>
