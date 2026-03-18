@@ -1,49 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 /**
  * QueueSmart - Service Management Screen (Admin)
- * UI-only: create/edit services + client-side validation (no backend required)
+ * Connected to backend APIs
  */
 export default function ServiceManagement() {
-  const [services, setServices] = useState([
-    {
-      id: 1,
-      name: "Nail trimming",
-      description: "Quick nail trim to keep your pet's nails neat and comfortable.",
-      durationMinutes: 10,
-      priority: "low",
-      active: true,
-      updatedAt: new Date(),
-    },
-    {
-      id: 2,
-      name: "Haircut",
-      description: "Professional haircut tailored to your pet’s breed and style preference.",
-      durationMinutes: 30,
-      priority: "medium",
-      active: true,
-      updatedAt: new Date(),
-    },
-    {
-      id: 3,
-      name: "Full Groom (Bath + Haircut + Nails)",
-      description: "Complete grooming package including bath, haircut, and nail trim.",
-      durationMinutes: 60,
-      priority: "high",
-      active: true,
-      updatedAt: new Date(),
-    },
-    {
-      id: 4,
-      name: "Bath + Dry",
-      description: "Bath, shampoo, blow dry, and brushing.",
-      durationMinutes: 35,
-      priority: "medium",
-      active: true,
-      updatedAt: new Date(),
-    },
-  ]);
-  
+  const [services, setServices] = useState([]);
 
   const emptyForm = useMemo(
     () => ({
@@ -62,9 +24,25 @@ export default function ServiceManagement() {
   const [errors, setErrors] = useState({});
   const [flash, setFlash] = useState("");
 
+  useEffect(() => {
+    fetch("http://localhost:3001/api/services")
+      .then((res) => res.json())
+      .then((data) => {
+        setServices(
+          data.map((service) => ({
+            ...service,
+            updatedAt: new Date(service.updatedAt),
+          }))
+        );
+      })
+      .catch(() => {
+        setFlash("Failed to load services from backend.");
+      });
+  }, []);
+
   function setField(key, value) {
     setForm((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => ({ ...prev, [key]: "" })); // clear field error as user types
+    setErrors((prev) => ({ ...prev, [key]: "" }));
     setFlash("");
   }
 
@@ -78,7 +56,6 @@ export default function ServiceManagement() {
 
     if (!desc) e.description = "Description is required.";
 
-    // duration must be a positive integer
     const durRaw = nextForm.durationMinutes;
     const durNum = Number(durRaw);
     if (durRaw === "" || durRaw === null || Number.isNaN(durNum)) {
@@ -120,45 +97,101 @@ export default function ServiceManagement() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function handleSave() {
+  async function handleSave() {
     const e = validate(form);
     setErrors(e);
     if (Object.keys(e).length > 0) return;
 
-    const now = new Date();
-    const payload = {
-      id: form.id ?? Date.now(),
-      name: form.name.trim(),
-      description: form.description.trim(),
-      durationMinutes: Number(form.durationMinutes),
-      priority: form.priority,
-      active: !!form.active,
-      updatedAt: now,
-    };
+    const isEdit = mode === "edit";
+    const url = isEdit
+      ? `http://localhost:3001/api/services/${form.id}`
+      : "http://localhost:3001/api/services";
 
-    if (mode === "create") {
-      setServices((prev) => [payload, ...prev]);
-      setFlash("Service created.");
-      setForm(emptyForm);
-    } else {
-      setServices((prev) => prev.map((s) => (s.id === payload.id ? payload : s)));
-      setFlash("Service updated.");
+    const method = isEdit ? "PUT" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrors(data.errors || {});
+        setFlash(data.message || "Unable to save service.");
+        return;
+      }
+
+      const refreshRes = await fetch("http://localhost:3001/api/services");
+      const refreshData = await refreshRes.json();
+
+      setServices(
+        refreshData.map((service) => ({
+          ...service,
+          updatedAt: new Date(service.updatedAt),
+        }))
+      );
+
+      setFlash(
+        isEdit ? "Service updated successfully." : "Service created successfully."
+      );
+      startCreate();
+    } catch (error) {
+      setFlash("Server error while saving service.");
     }
   }
 
-  function toggleActive(id) {
-    setServices((prev) =>
-      prev.map((s) =>
-        s.id === id ? { ...s, active: !s.active, updatedAt: new Date() } : s
-      )
-    );
+  async function toggleActive(id) {
+    try {
+      const res = await fetch(
+        `http://localhost:3001/api/services/${id}/toggle-active`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      if (!res.ok) {
+        setFlash("Failed to update service status.");
+        return;
+      }
+
+      const refreshRes = await fetch("http://localhost:3001/api/services");
+      const refreshData = await refreshRes.json();
+
+      setServices(
+        refreshData.map((service) => ({
+          ...service,
+          updatedAt: new Date(service.updatedAt),
+        }))
+      );
+
+      setFlash("Service status updated.");
+    } catch (error) {
+      setFlash("Server error while updating status.");
+    }
   }
 
-  function removeService(id) {
-    // UI-only: you can remove if you want
-    setServices((prev) => prev.filter((s) => s.id !== id));
-    setFlash("Service removed.");
-    if (form.id === id) startCreate();
+  async function removeService(id) {
+    try {
+      const res = await fetch(`http://localhost:3001/api/services/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        setFlash("Failed to remove service.");
+        return;
+      }
+
+      setServices((prev) => prev.filter((service) => service.id !== id));
+      setFlash("Service removed.");
+      if (form.id === id) startCreate();
+    } catch (error) {
+      setFlash("Server error while removing service.");
+    }
   }
 
   return (
@@ -167,7 +200,7 @@ export default function ServiceManagement() {
         <div>
           <h1 style={styles.title}>Service Management</h1>
           <p style={styles.subtitle}>
-            Create and edit grooming services (admin). UI-only for this assignment.
+            Create and edit grooming services (admin). Connected to backend API.
           </p>
         </div>
         <button style={styles.ghostBtn} onClick={startCreate}>
@@ -175,7 +208,6 @@ export default function ServiceManagement() {
         </button>
       </header>
 
-      {/* Editor */}
       <div style={styles.card}>
         <div style={styles.cardTop}>
           <h2 style={styles.cardTitle}>
@@ -194,7 +226,7 @@ export default function ServiceManagement() {
               }}
               type="text"
               value={form.name}
-              maxLength={120} // allow typing, validate at 100
+              maxLength={120}
               placeholder="e.g., Full Groom"
               onChange={(e) => setField("name", e.target.value)}
             />
@@ -292,11 +324,10 @@ export default function ServiceManagement() {
         </div>
       </div>
 
-      {/* List */}
       <div style={styles.card}>
         <h2 style={styles.cardTitle}>Services</h2>
         <p style={styles.cardText}>
-          This list is UI-only. In a real app it would come from the backend.
+          This list is now loaded from the backend API.
         </p>
 
         <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
@@ -308,13 +339,14 @@ export default function ServiceManagement() {
                 <div style={{ flex: 1 }}>
                   <div style={styles.serviceTop}>
                     <div style={styles.serviceName}>
-                      {s.name}{" "}
-                      <span style={styles.pill(s.priority)}>{s.priority}</span>
+                      {s.name} <span style={styles.pill(s.priority)}>{s.priority}</span>
                       {!s.active ? <span style={styles.inactiveTag}>Inactive</span> : null}
                     </div>
                     <div style={styles.serviceMeta}>
                       {s.durationMinutes} min • Updated{" "}
-                      {s.updatedAt.toLocaleTimeString()}
+                      {s.updatedAt instanceof Date
+                        ? s.updatedAt.toLocaleTimeString()
+                        : new Date(s.updatedAt).toLocaleTimeString()}
                     </div>
                   </div>
                   <div style={styles.serviceDesc}>{s.description}</div>
@@ -448,7 +480,15 @@ const styles = {
     alignItems: "flex-start",
   },
   serviceTop: { display: "flex", flexDirection: "column", gap: 2 },
-  serviceName: { fontSize: 15, fontWeight: 800, color: "#111827", display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" },
+  serviceName: {
+    fontSize: 15,
+    fontWeight: 800,
+    color: "#111827",
+    display: "flex",
+    gap: 8,
+    flexWrap: "wrap",
+    alignItems: "center",
+  },
   serviceMeta: { fontSize: 12, color: "#6b7280" },
   serviceDesc: { marginTop: 6, fontSize: 13, color: "#374151" },
 
@@ -458,10 +498,8 @@ const styles = {
     padding: "4px 8px",
     borderRadius: 999,
     border: "1px solid #e5e7eb",
-    background:
-      p === "high" ? "#fff1f2" : p === "low" ? "#eff6ff" : "#fefce8",
-    color:
-      p === "high" ? "#9f1239" : p === "low" ? "#1e40af" : "#854d0e",
+    background: p === "high" ? "#fff1f2" : p === "low" ? "#eff6ff" : "#fefce8",
+    color: p === "high" ? "#9f1239" : p === "low" ? "#1e40af" : "#854d0e",
   }),
   inactiveTag: {
     fontSize: 11,

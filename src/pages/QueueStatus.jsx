@@ -1,29 +1,48 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 /**
  * QueueSmart - Queue Status Screen (User)
- * UI-only: mock data + simulated updates (no backend required)
+ * Connected to backend APIs
  */
 export default function QueueStatus() {
-  // Mock "session" state (pretend this was created after Join Queue)
   const [queueInfo, setQueueInfo] = useState({
-    serviceName: "Full Groom (Bath + Haircut + Nails)",
-    petName: "Luna",
-    position: 3,
-    totalInQueue: 12,
-    etaMinutes: 18,
-    status: "WAITING", // WAITING | ALMOST_READY | SERVED | READY_FOR_PICKUP
+    serviceName: "",
+    petName: "",
+    position: 0,
+    totalInQueue: 0,
+    etaMinutes: 0,
+    status: "WAITING",
     lastUpdated: new Date(),
   });
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: "info",
-      text: "You’re in the queue. We’ll notify you when you’re almost ready.",
-      time: new Date(),
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+
+  async function loadQueueStatus() {
+    try {
+      const res = await fetch("http://localhost:3001/api/queue-status/q1");
+      const data = await res.json();
+
+      if (!res.ok) return;
+
+      setQueueInfo({
+        ...data.queueInfo,
+        lastUpdated: new Date(data.queueInfo.lastUpdated),
+      });
+
+      setNotifications(
+        data.notifications.map((n) => ({
+          ...n,
+          time: new Date(n.time),
+        }))
+      );
+    } catch (error) {
+      console.error("Failed to load queue status", error);
+    }
+  }
+
+  useEffect(() => {
+    loadQueueStatus();
+  }, []);
 
   const statusLabel = useMemo(() => {
     switch (queueInfo.status) {
@@ -64,103 +83,68 @@ export default function QueueStatus() {
   }, [queueInfo.status]);
 
   const progress = useMemo(() => {
-    // Simple progress estimate: closer to 1 when position approaches 1
-    // Clamp to [0, 1]
     if (queueInfo.totalInQueue <= 0) return 0;
     const p =
       (queueInfo.totalInQueue - queueInfo.position + 1) / queueInfo.totalInQueue;
     return Math.max(0, Math.min(1, p));
   }, [queueInfo.position, queueInfo.totalInQueue]);
 
-  // Dedupe + keep list from getting huge
-  function pushNotif(type, text) {
-    setNotifications((prev) => {
-      // block duplicate if the newest notification has same text
-      if (prev.length > 0 && prev[0].text === text) return prev;
+  async function refreshStatus() {
+    try {
+      const res = await fetch("http://localhost:3001/api/queue-status/q1/refresh", {
+        method: "POST",
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) return;
+  
+      setQueueInfo({
+        ...data.queueInfo,
+        lastUpdated: new Date(data.queueInfo.lastUpdated),
+      });
+  
+      setNotifications(
+        data.notifications.map((n) => ({
+          ...n,
+          time: new Date(n.time),
+        }))
+      );
+    } catch (error) {
+      console.error("Failed to refresh queue status", error);
+    }
+  }
 
-      const next = [
+  async function leaveQueue() {
+    try {
+      const res = await fetch("http://localhost:3001/api/queue-status/q1", {
+        method: "DELETE",
+      });
+
+      if (!res.ok) return;
+
+      setQueueInfo((prev) => ({
+        ...prev,
+        serviceName: "",
+        position: 0,
+        totalInQueue: 0,
+        etaMinutes: 0,
+        status: "WAITING",
+        lastUpdated: new Date(),
+      }));
+
+      setNotifications((prev) => [
         {
           id: Date.now(),
-          type,
-          text,
+          type: "info",
+          text: "You left the queue.",
           time: new Date(),
         },
         ...prev,
-      ];
-
-      // keep max 10 in memory
-      return next.slice(0, 10);
-    });
-  }
-
-  function simulateRefresh() {
-    setQueueInfo((prev) => {
-      // Once ready for pickup, keep it stable
-      if (prev.status === "READY_FOR_PICKUP") {
-        return { ...prev, lastUpdated: new Date() };
-      }
-  
-      // Move up exactly 1 spot per refresh (clean + predictable)
-      const newPos = Math.max(1, prev.position - 1);
-  
-      // Update ETA based on position (simple estimate)
-      // Example: each person ahead ~ 6 minutes
-      const minutesPerSpot = 6;
-      const newEta = Math.max(0, (newPos - 1) * minutesPerSpot);
-  
-      let newStatus = prev.status;
-  
-      // Status changes based on position/state
-      if (newPos >= 3) {
-        newStatus = "WAITING";
-      }
-      if (newPos === 2) {
-        newStatus = "ALMOST_READY";
-      }
-      if (newPos === 1 && prev.status !== "SERVED" && prev.status !== "READY_FOR_PICKUP") {
-        newStatus = "SERVED";
-      }
-  
-      // Notifications ONLY at key milestones
-      if (prev.status === "WAITING" && newStatus === "ALMOST_READY") {
-        pushNotif("warning", "You’re next in line. Please be near the store.");
-      }
-  
-      if (prev.status !== "SERVED" && newStatus === "SERVED") {
-        pushNotif(
-          "success",
-          "It’s your turn! Grooming started! We’ll notify you when your pet is ready for pickup."
-        );
-      }
-  
-      // After served, one more refresh will set Ready for Pickup (simple + demo-friendly)
-      if (prev.status === "SERVED" && newStatus === "SERVED") {
-        newStatus = "READY_FOR_PICKUP";
-        pushNotif("success", "Ready for pickup! Please come to the front desk.");
-      }
-  
-      return {
-        ...prev,
-        position: newPos,
-        etaMinutes: newEta,
-        status: newStatus,
-        lastUpdated: new Date(),
-      };
-    });
-  }
-  
-
-  function leaveQueue() {
-    // UI-only: clear queue info
-    pushNotif("info", "You left the queue.");
-    setQueueInfo((prev) => ({
-      ...prev,
-      position: 0,
-      totalInQueue: 0,
-      etaMinutes: 0,
-      status: "WAITING",
-      serviceName: "",
-    }));
+      ]);
+    } catch (error) {
+      console.error("Failed to leave queue", error);
+    }
   }
 
   const isInQueue = queueInfo.position > 0;
@@ -215,13 +199,16 @@ export default function QueueStatus() {
                   />
                 </div>
                 <div style={styles.progressHint}>
-                  Updated: {queueInfo.lastUpdated.toLocaleTimeString()}
+                  Updated:{" "}
+                  {queueInfo.lastUpdated instanceof Date
+                    ? queueInfo.lastUpdated.toLocaleTimeString()
+                    : new Date(queueInfo.lastUpdated).toLocaleTimeString()}
                 </div>
               </div>
 
               <div style={styles.actions}>
-                <button style={styles.primaryBtn} onClick={simulateRefresh}>
-                  Refresh (Simulate)
+                <button style={styles.primaryBtn} onClick={refreshStatus}>
+                  Refresh Status
                 </button>
                 <button style={styles.ghostBtn} onClick={leaveQueue}>
                   Leave Queue
@@ -239,14 +226,15 @@ export default function QueueStatus() {
                 {notifications.length === 0 ? (
                   <div style={styles.emptyNotif}>No notifications yet.</div>
                 ) : (
-                  // show only 5 to keep UI clean
                   notifications.slice(0, 5).map((n) => (
                     <div key={n.id} style={styles.notifItem}>
                       <span style={styles.notifDot(n.type)} />
                       <div style={{ flex: 1 }}>
                         <div style={styles.notifText}>{n.text}</div>
                         <div style={styles.notifTime}>
-                          {n.time.toLocaleTimeString()}
+                          {n.time instanceof Date
+                            ? n.time.toLocaleTimeString()
+                            : new Date(n.time).toLocaleTimeString()}
                         </div>
                       </div>
                     </div>
