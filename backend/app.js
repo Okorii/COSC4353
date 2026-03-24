@@ -3,6 +3,8 @@ const cors = require("cors");
 
 const servicesRoutes = require("./routes/services.routes");
 const queueStatusRoutes = require("./routes/queueStatus.routes");
+const queueManagementRoutes = require("./routes/queueManagement.routes");
+//const historyRoutes = require("./routes/history.routes");
 
 const app = express();
 
@@ -15,5 +17,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/services", servicesRoutes);
 app.use("/api/queue-status", queueStatusRoutes);
+app.use("/api/queue-management", queueManagementRoutes);
+//app.use("/api/history", historyRoutes);
 
 module.exports = app;

@@ -1,5 +1,4 @@
-//NOTE: THIS IS NOT COMPLETE. Need to add back end. 
-import {useMemo,useState} from "react";
+import { useEffect, useMemo, useState } from "react";
 
 // employee examples
 const groomers = [
@@ -43,6 +42,7 @@ function to12Hour(time24hr) {
   return `${hour12}:${Format2digits(mm)} ${ampm}`;
 }
 
+{/*
 // just for assignment 1. fake data. will add functionality later.
 const initialAppointments = [
   { id: "a1", pet: "Kochi", owner: "Billy Jones", groomerId: "g1", serviceId: "nails", start: "09:30", priority: "low" },
@@ -50,7 +50,7 @@ const initialAppointments = [
   { id: "a3", pet: "Sam", owner: "Maria Jones", groomerId: "g3", serviceId: "bathplusdry", start: "14:00", priority: "medium" },
   { id: "a4", pet: "Chucho", owner: "Manuel Avila", groomerId: "g1", serviceId: "full", start: "15:00", priority: "high" },
   { id: "a5", pet: "Hime", owner: "Lupe Garcia", groomerId: "g2", serviceId: "full", start: "15:30", priority: "high" },
-];
+]; */}
 
 //REACT
 export default function QueueManagement() {
@@ -61,9 +61,49 @@ export default function QueueManagement() {
   //select date
   const [selectdate, setdate] = useState(new Date());
   //manage appointments
-  const [appointments, setappointment] = useState(initialAppointments);
+  const [appointments, setappointment] = useState([]);
   //notifications
   const [message, setmessage] = useState("");
+
+  //loads queue data from backend API
+  const loadQueue = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/api/queue-management");
+      const data = await res.json();
+      //map backend to frontend UI structure
+      const mapped = data.map((item) => ({
+        id: item.id,
+        pet: item.petName,
+        owner: item.ownerName,
+    
+        serviceId:
+          item.serviceId === 1
+            ? "quick"
+            : item.serviceId === 2
+            ? "full"
+            : item.serviceId === 3
+            ? "nails"
+            : "quick",
+
+        start: new Date(item.joinedAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }),
+        priority: "low",
+        groomerId: "g1",
+      }));
+      //update with mapped queue data
+      setappointment(mapped);
+    } catch {
+      setmessage("Failed to load queue data.");
+    }
+  };
+  //making sure queue data is actually loaded
+  useEffect(() => {
+    loadQueue();
+  }, []);
+
 
   // find service by id
   const serviceById = useMemo(() => {
@@ -114,20 +154,52 @@ const queueLength = allappointments.length;
     setmessage(`Moved ${allappointments[index].pet} ${direction === -1 ? "up":"down"} in the queue.`);
   };
 
-  //removes from queue
-  const removepet = (index) => {
-    const removed = allappointments[index];
-    setappointment((prev) => prev.filter((a) => a.id !== removed.id));
-    setmessage(`Removed ${removed.pet} (${removed.owner}).`);
-  };
+  //removes from queue using backend api
+  const removepet = async (index) => {
+    //get appt based on the index
+  const removed = allappointments[index];
 
-  //removes first pet in queue bc they are actively being serviced now
-  const serveNext = () => {
-    if (allappointments.length === 0) return setmessage("No appointments");
-    const next = allappointments[0];
-    setappointment((prev) => prev.filter((a) => a.id !== next.id));
-    setmessage(`Served (${next.pet}) belonging to (${next.owner}).`);
-  };
+  try {
+    //send request to backend with pet id
+    const res = await fetch(`http://localhost:3001/api/queue-management/${removed.id}`, {
+      method: "DELETE",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setmessage(data.error || "Could not remove.");
+      return;
+    }
+
+    setmessage(data.message);
+    loadQueue(); // refresh
+  } catch {
+    setmessage("Server error.");
+  }
+};
+
+  //remove next pet in queue
+  const serveNext = async () => {
+  try {
+    //post request to backend to serve next pet
+    const res = await fetch("http://localhost:3001/api/queue-management/serve-next", {
+      method: "POST",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setmessage(data.error || "No appointments");
+      return;
+    }
+
+    setmessage(data.message);
+    loadQueue(); // refresh
+  } catch {
+    setmessage("Server error.");
+  }
+};
 
   //go back a date
   const prevDay = () => {
@@ -144,10 +216,8 @@ const queueLength = allappointments.length;
     setdate(d);
     setmessage("");
   };
-
-    // DOES NOT HAVE FUNCTIONALITY YET. NEED TO ADD. 
+ 
     const notifyReady = (appt) => {
-    // example
     setmessage(`Auto-notification ${appt.owner}: "${appt.pet} is ready to be seen."`);
   };
 
