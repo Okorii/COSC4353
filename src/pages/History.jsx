@@ -1,6 +1,4 @@
-// NOTE: THIS IS NOT COMPLETE. Need to add back end.
-// in future, i will add personal info for each user. Right now, all mock data in one view.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 // services
 const services = [
@@ -31,10 +29,23 @@ export default function History() {
   const [selectedServiceId, setSelectedServiceId] = useState("all");
 
   // history
-  const [historyList] = useState(initialHistory);
+  const [historyList, setHistoryList] = useState([]);
 
   // notifications - implementation will add later
   const [message, setmessage] = useState("");
+
+  // history data from backend API
+  useEffect(() => {
+    const url =
+      selectedServiceId === "all"
+        ? "http://localhost:3001/api/history"
+        : `http://localhost:3001/api/history?serviceId=${selectedServiceId}`;
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => setHistoryList(data))
+      .catch(() => setmessage("Failed to load history."));
+  }, [selectedServiceId]);
 
   // service lookup
   const serviceById = useMemo(() => {
@@ -49,24 +60,18 @@ export default function History() {
     return map;
   }, []);
 
+  // sorting backend data
   const filteredHistory = useMemo(() => {
-    let list = historyList;
+    return [...historyList].sort((a, b) => b.date.localeCompare(a.date));
+  }, [historyList]);
 
-    if (selectedServiceId !== "all") {
-      list = list.filter((h) => h.serviceId === selectedServiceId);
-    }
-
-    // newer first
-    return [...list].sort((a, b) => b.date.localeCompare(a.date));
-  }, [historyList, selectedServiceId]);
-
-  const formatOutcome = (text) => {
-    if (!text) return "";
-    return text
-      .split(" ")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
-    };
+    const formatOutcome = (text) => {
+      if (!text) return "";
+      return text
+        .split(" ")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+      };
 
   return (
     <div
