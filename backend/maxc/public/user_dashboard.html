@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="style_123.css">
+</head>
+<body>
+  <h1>Dashboard</h1>
+  <button id="logoutBtn">Logout</button>
+
+  <div class="dashboard-grid">
+    <div class="card overview">
+      <h2>Overview</h2>
+
+      <div class="queue-body">
+        <div class="queue-left">
+          <p class="label">Current Position:</p>
+          <div class="big-number" id="position">--</div>
+        </div>
+
+        <div class="queue-right">
+          <p><span class="muted">People Ahead:</span> <strong id="peopleAhead">--</strong></p>
+          <p><span class="muted">Estimated Wait:</span> <strong id="waitTime">--</strong></p>
+          <p><span class="muted">Service Type:</span> <strong id="serviceType">--</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card notification">
+      <h2>Notifications</h2>
+      <div id="notificationList"></div>
+    </div>
+
+    <div class="card history">
+      <h2>History</h2>
+      <div id="historyList"></div>
+    </div>
+
+    <div class="card services">
+      <h2>Services</h2>
+      <button id="appointmentBtn">Appointment</button>
+      <button id="walkinBtn">Walk In</button>
+    </div>
+  </div>
+
+  <script src="user_dashboard.js"></script>
+</body>
+</html>
