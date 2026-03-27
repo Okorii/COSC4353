@@ -1,0 +1,135 @@
+const { users } = require("../data/store");
+
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+const register = (req, res) => {
+  let { name, email, password, role } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({
+      error: "Name, email, and password are required"
+    });
+  }
+
+  if (
+    typeof name !== "string" ||
+    typeof email !== "string" ||
+    typeof password !== "string"
+  ) {
+    return res.status(400).json({
+      error: "Invalid field types"
+    });
+  }
+
+  name = name.trim();
+  email = email.trim().toLowerCase();
+  password = password.trim();
+
+  if (name.length < 2 || name.length > 50) {
+    return res.status(400).json({
+      error: "Name must be between 2 and 50 characters"
+    });
+  }
+
+  if (!isValidEmail(email)) {
+    return res.status(400).json({
+      error: "Invalid email format"
+    });
+  }
+
+  if (password.length < 6 || password.length > 50) {
+    return res.status(400).json({
+      error: "Password must be between 6 and 50 characters"
+    });
+  }
+
+  const existingUser = users.find((u) => u.email === email);
+  if (existingUser) {
+    return res.status(409).json({
+      error: "Email already registered"
+    });
+  }
+
+  const newUser = {
+    id: users.length + 1,
+    name,
+    email,
+    password,
+    role: role === "admin" ? "admin" : "user",
+    history: [
+      {
+        action: "Account created",
+        date: new Date().toLocaleString()
+      }
+    ],
+    notifications: [
+      "Welcome! Your account was created successfully.",
+      "You are currently in the Appointment queue."
+    ],
+    queueStatus: {
+      position: 12,
+      peopleAhead: 11,
+      waitTime: "18 min",
+      serviceType: "Appointment"
+    }
+  };
+
+  users.push(newUser);
+
+  return res.status(201).json({
+    message: "User registered successfully",
+    user: {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role
+    }
+  });
+};
+
+const login = (req, res) => {
+  let { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      error: "Email and password are required"
+    });
+  }
+
+  if (typeof email !== "string" || typeof password !== "string") {
+    return res.status(400).json({
+      error: "Invalid field types"
+    });
+  }
+
+  email = email.trim().toLowerCase();
+  password = password.trim();
+
+  if (!isValidEmail(email)) {
+    return res.status(400).json({
+      error: "Invalid email format"
+    });
+  }
+
+  const user = users.find((u) => u.email === email && u.password === password);
+
+  if (!user) {
+    return res.status(401).json({
+      error: "Invalid email or password"
+    });
+  }
+
+  return res.status(200).json({
+    message: "Login successful",
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+  });
+};
+
+module.exports = { register, login };
