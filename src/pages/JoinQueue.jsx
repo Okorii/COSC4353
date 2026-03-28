@@ -1,92 +1,69 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function JoinQueue({goToStatus}){
-  const [services] = useState([
-    {
-      id: 1,
-      name: "Nail trimming",
-      durationMinutes: 10,
-      isOpen: true,
-    },
-    {
-      id: 2,
-      name: "Haircut",
-      durationMinutes: 30,
-      queueLength: 2,
-      isOpen: true,
-    },
-    {
-      id: 3,
-      name: "Full Groom (Bath + Haircut + Nails)",
-      durationMinutes: 60,
-      isOpen: true,
-    },
-    {
-      id: 4,
-      name: "Bath + Dry",
-      durationMinutes: 35,
-      isOpen: true,
-    },
-  ]);
+    const [services, setServices] = useState([]);
+    const [queue, setQueue] = useState([]);
+    const [queueId, setQueueId] = useState("");
+    const [petName, setPetName] = useState("");
+    const [email, setEmail] = useState("");
+    const [serviceId, setServiceId] = useState("");
+    const [message, setMessage] = useState("");
 
-  //mock data so it shows non zero wait times
-  const [queue, setQueue] = useState([
-    {
-        id: "p1",
-        serviceId: 1,
-        email: "a@email.com"
-    },
-    {
-        id: "p2",
-        serviceId: 1,
-        email: "b@email.com"
-    },
-    {
-        id: "p3",
-        serviceId: 2,
-        email: "c@email.com"
-    },
-    {
-        id: "p4",
-        serviceId: 3,
-        email: "e@email.com"
-    },
-    {
-        id: "p5",
-        serviceId: 4,
-        email: "f@email.com"
-    },
-    {
-        id: "p6",
-        serviceId: 4,
-        email: "g@email.com"
-    },
-  ]);
+    const selected = useMemo(
+        () => services.find((s) => String(s.id) === String(serviceId)),
+        [services, serviceId]
+    );
 
-  const[petName, setPetName] = useState("");
-  const[email, setEmail] = useState("");
-  const[serviceId, setServiceId] = useState(services[0]?.id || "full");
-  const[message, setMessage] = useState("");
+    const queueForService = useMemo(
+        () => queue.filter((q) => String(q.serviceId) === String(serviceId)),
+        [queue, serviceId]
+    );
 
-  const selected = useMemo(
-    () => services.find((s) => s.id === serviceId),
-    [services, serviceId]
-  );
+    useEffect(() => {
+    fetch("http://localhost:3001/api/services")
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error(`Services request failed: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then((data) => {
+            console.log("services:", data);
+            setServices(data);
 
-  const queueForService = useMemo(
-    () => queue.filter((q) => q.serviceId === serviceId),
-    [queue, serviceId]
-  );
+            if (data.length > 0) {
+                setServiceId(String(data[0].id));
+            }
+        })
+        .catch((err) => {
+            console.error("Error loading services:", err);
+            setMessage("Could not load services from backend.");
+        });
+    }, []);
 
-  const estWaitMinutes = selected ? queueForService.length * Number(selected.durationMinutes) : 0;
+    useEffect(() => {
+    fetch("http://localhost:3001/api/services")
+        .then((res) => res.json())
+        .then((data) => setServices(data))
+        .catch((err) => console.error("Error loading services:", err));
+    }, []);
 
-  //need to make it ensure theres no invalid values in the email section? such as !#$%^
-  function validate(){
+    useEffect(() => {
+    fetch("http://localhost:3001/api/queue-management")
+        .then((res) => res.json())
+        .then((data) => setQueue(data))
+        .catch((err) => console.error("Error loading queue:", err));
+}, []);
+
+const estWaitMinutes = selected ? queueForService.length * Number(selected.durationMinutes) : 0;
+
+//need to make it ensure theres no invalid values in the email section? such as !#$%^
+function validate(){
     if(!email.trim())
         return "Email is required.";
     if(email.trim().length > 100)
         return "Email must be 100 characters or less.";
-    if(!email.includes("@"))
+    if (!email.trim().includes("@") || !email.trim().includes("."))
         return "Enter a valid email address.";
     if(!serviceId)
         return "Please select a service.";
@@ -96,56 +73,86 @@ export default function JoinQueue({goToStatus}){
         return "Pet name must be 30 characters or less.";
 
     return "";
+}
+
+function joining() {
+  setMessage("");
+  const err = validate();
+  if (err) return setMessage(err);
+
+  if (!selected?.active) {
+    return setMessage("This service is currently closed.");
   }
 
-  function joining(){
-    setMessage("");
-    const err = validate();
-    if(err) 
-        return setMessage(err);
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedPet = petName.trim().toLowerCase();
 
-    if(!selected?.isOpen)
-        return setMessage("This service is currently closed.");
-
-    //code for preventing dupes
-    const normalizedEmail = email.trim().toLowerCase();
-    const normalizedPet = petName.trim().toLowerCase();
-
-    if(
+  if (
     queue.some(
-        (q) =>
-        q.email.toLowerCase() === normalizedEmail &&
-        q.petName.toLowerCase() === normalizedPet
+      (q) =>
+        q.ownerName?.toLowerCase() === normalizedEmail &&
+        q.petName?.toLowerCase() === normalizedPet
     )
-    ) {
+  ) {
     return setMessage("That pet is already in a queue with this email.");
-    }
-
-    setQueue((prev) => [
-      ...prev,
-      { id: `q${Date.now()}`, serviceId, email: email.trim(), petName: petName.trim() },
-    ]);
-
-    setMessage(`Joined ${selected.name}. Estimated wait: ${estWaitMinutes} minutes.`);
   }
 
-  function leaving(){
-    setMessage("");
-    if (!email.trim())
-        return setMessage("Must enter email first.");
-    setQueue((prev) =>
-        prev.filter(
-            (q) =>
-            !(
-                q.email.toLowerCase() === email.trim().toLowerCase() &&
-                q.petName.toLowerCase() === petName.trim().toLowerCase()
-            )
-        )
-    );
-    setMessage("Left the queue.");
+  fetch("http://localhost:3001/api/queue-management/join", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      petName: petName.trim(),
+      ownerName: email.trim(),
+      serviceId: Number(serviceId),
+    }),
+  })
+    .then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.errors?.join(", ") || "Unable to join queue.");
+      }
+      return data;
+    })
+    .then((data) => {
+      setQueue((prev) => [...prev, data]);
+      setQueueId(data.id);
+      setMessage(`Joined ${selected.name}. Estimated wait: ${estWaitMinutes} minutes.`);
+    })
+    .catch((err) => {
+      setMessage(err.message);
+    });
+}
+
+function leaving() {
+  setMessage("");
+
+  if (!queueId) {
+    return setMessage("No joined queue entry found for this session.");
   }
 
-  return (
+  fetch(`http://localhost:3001/api/queue-management/${queueId}`, {
+    method: "DELETE",
+  })
+    .then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Unable to leave queue.");
+      }
+      return data;
+    })
+    .then(() => {
+      setQueue((prev) => prev.filter((q) => q.id !== queueId));
+      setQueueId("");
+      setMessage("Left the queue.");
+    })
+    .catch((err) => {
+      setMessage(err.message);
+    });
+}
+
+return (
     /*code for top of card txt*/
     <div style={styles.page}>
         <header style={styles.header}>
@@ -184,11 +191,15 @@ export default function JoinQueue({goToStatus}){
                 value={serviceId}
                 onChange={(e) => setServiceId(e.target.value)}
             >
-                {services.map((s) => (
+                {services.length === 0 ? (
+                    <option value="">Loading services...</option>
+                ) : (
+                services.map((s) => (
                 <option key={s.id} value={s.id}>
-                    {s.name} {s.isOpen ? "" : "(Closed)"}
+                    {s.name} {s.active ? "" : "(Closed)"}
                 </option>
-                ))}
+                ))
+            )}
             </select>
 
             <div style={styles.infoRow}>
@@ -202,7 +213,7 @@ export default function JoinQueue({goToStatus}){
                 <button
                 style={styles.joinBtn}
                 onClick={joining}
-                disabled={!selected || !selected.isOpen}
+                disabled={!selected || !selected.active}
                 >
                 Join Queue
                 </button>
@@ -228,7 +239,7 @@ export default function JoinQueue({goToStatus}){
             </div>
         </div>
     </div>
-  );
+);
 }
 
 const styles = {
@@ -350,5 +361,4 @@ const styles = {
         cursor: "pointer",
         fontWeight: 700,
     },
-
 }
