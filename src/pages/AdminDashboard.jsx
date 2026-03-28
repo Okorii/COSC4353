@@ -1,45 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AdminDashboard({goToServices, goToQueue}){
-  const [services, setServices] = useState([
-    {
-      id: 1,
-      name: "Nail trimming",
-      description: "Quick nail trim to keep your pet's nails neat and comfortable.",
-      durationMinutes: 10,
-      queueLength: 1,
-      isOpen: true,
-    },
-    {
-      id: 2,
-      name: "Haircut",
-      description: "Professional haircut tailored to your pet’s breed and style preference.",
-      durationMinutes: 30,
-      queueLength: 2,
-      isOpen: true,
-    },
-    {
-      id: 3,
-      name: "Full Groom (Bath + Haircut + Nails)",
-      description: "Complete grooming package including bath, haircut, and nail trim.",
-      durationMinutes: 60,
-      queueLength: 2,
-      isOpen: true,
-    },
-    {
-      id: 4,
-      name: "Bath + Dry",
-      description: "Bath, shampoo, blow dry, and brushing.",
-      durationMinutes: 35,
-      queueLength: 0,
-      isOpen: true,
-    },
-  ]);
+  const [services, setServices] = useState([]);
+  
+  //loading services
+  useEffect(() => {
+    fetch("http://localhost:3001/api/services")
+      .then((res) => res.json())
+      .then((data) => setServices(data))
+      .catch((err) => console.error("Error loading services:", err));
+  }, []);
 
-  function toggleService(id){
-    setServices((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, isOpen: !s.isOpen } : s))
-    );
+  //loading queue info
+  useEffect(() => {
+    fetch("http://localhost:3001/api/queue-management")
+      .then((res) => res.json())
+      .then((data) => setQueue(data))
+      .catch((err) => console.error("Error loading queue:", err));
+  }, []);
+
+  function toggleService(id) {
+    fetch(`http://localhost:3001/api/services/${id}/toggle-active`, {
+        method: "PATCH",
+      })
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.message || "Unable to toggle service.");
+          }
+          return data;
+        })
+        .then((updatedService) => {
+          setServices((prev) =>
+            prev.map((s) => (s.id === updatedService.id ? updatedService : s))
+          );
+        })
+        .catch((err) => {
+          console.error("Toggle error:", err);
+        });
   }
 
   return (
@@ -60,8 +58,8 @@ export default function AdminDashboard({goToServices, goToQueue}){
 
                 <div style={styles.infoText}>
                   {s.durationMinutes} min • Queue length: {s.queueLength} •{" "}
-                  <span style={s.isOpen ? styles.openText : styles.closedText}>
-                    {s.isOpen ? "Open" : "Closed"}
+                  <span style={s.actvie ? styles.openText : styles.closedText}>
+                    {s.active ? "Open" : "Closed"}
                   </span>
                 </div>
 
@@ -69,10 +67,10 @@ export default function AdminDashboard({goToServices, goToQueue}){
               </div>
 
               <button
-                style={s.isOpen ? styles.closeBtn : styles.openBtn}
+                style={s.active ? styles.closeBtn : styles.openBtn}
                 onClick={() => toggleService(s.id)}
               >
-                {s.isOpen ? "Close" : "Open"}
+                {s.active ? "Close" : "Open"}
               </button>
             </div>
           ))}

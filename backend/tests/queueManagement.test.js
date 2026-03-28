@@ -50,6 +50,7 @@ describe("Queue Management Helpers", () => {
     expect(wait).toBe(20);
   });
 });
+
 //tests backend API routes
 describe("Queue Management Routes", () => {
   test("GET /api/queue-management returns queue", async () => {
@@ -68,4 +69,45 @@ describe("Queue Management Routes", () => {
     //expecting backend validation to reject request
     expect(response.statusCode).toBe(400);
   });
+
+  //test joining the queue
+  test("POST /api/queue-management/join adds a new queue entry", async () => {
+    const response = await request(app)
+      .post("/api/queue-management/join")
+      .send({petName: "Luna", ownerName: "amy@email.com", serviceId: 1 });
+
+    expect(response.statusCode).toBe(201);
+    expect(response.body.petName).toBe("Luna");
+    expect(response.body.ownerName).toBe("amy@email.com");
+    expect(response.body.status).toBe("WAITING");
+  });
+
+  //test leaving the queue
+  test("DELETE /api/queue-management/:id removes an entry", async () => {
+    //first join it
+    const joinRes = await request(app)
+      .post("/api/queue-management/join")
+      .send({ petName: "Lucy", ownerName: "amy@gmail.com", serviceId: 1,});
+
+    expect(joinRes.statusCode).toBe(201);
+    const id = joinRes.body.id;
+
+    //now try to leave it
+    const deleteRes = await request(app)
+      .delete(`/api/queue-management/${id}`);
+
+    expect(deleteRes.statusCode).toBe(200);
+    expect(deleteRes.body.message).toBe("Removed from queue");
+    expect(deleteRes.body.removed.id).toBe(id);
+  });
+
+  //testing id with no entry
+  test("DELETE /api/queue-management/:id returns 404 if not found", async () => {
+    const res = await request(app)
+      .delete("/api/queue-management/invalid-id");
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body.error).toBe("Not found.");
+  });
+
 });
