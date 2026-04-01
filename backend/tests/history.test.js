@@ -12,11 +12,28 @@ describe("History Routes", () => {
     expect(response.body.length).toBeGreaterThan(0);
   });
   test("GET /api/history filters by serviceId", async () => {
-    const response = await request(app).get("/api/history?serviceId=full");
+    const response = await request(app).get("/api/history?serviceId=1");
     expect(response.statusCode).toBe(200);
     // returned items to match filter
     response.body.forEach((item) => {
-      expect(item.serviceId).toBe("full");
+      expect(item.serviceId).toBe(1);
     });
   });
+});
+
+//additional tests
+test("GET /api/history returns sorted by newest date first", async () => {
+  const response = await request(app).get("/api/history");
+
+  const dates = response.body.map((item) => item.date);
+  const sortedDates = [...dates].sort((a, b) => b.localeCompare(a));
+
+  expect(dates).toEqual(sortedDates);
+});
+
+test("GET /api/history with unknown serviceId returns empty array", async () => {
+  const response = await request(app).get("/api/history?serviceId=999");
+
+  expect(response.statusCode).toBe(200);
+  expect(response.body).toEqual([]);
 });
