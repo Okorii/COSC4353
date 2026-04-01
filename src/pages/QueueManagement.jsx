@@ -11,11 +11,10 @@ const groomers = [
 // services
 const services = [
   { id: "all", name: "Services", minutes: 0 },
-  { id: "quick", name: "Quick Wash", minutes: 20 },
-  { id: "full", name: "Full Groom", minutes: 60 },
-  { id: "nails", name: "Nail Trim", minutes: 10 },
-  { id: "haircut", name: "Haircut", minutes: 30 },
-  { id: "bathplusdry", name: "Package", minutes: 35 }
+  { id: 1, name: "Nail trimming", minutes: 10 },
+  { id: 2, name: "Haircut", minutes: 30 },
+  { id: 3, name: "Full Groom (Bath + Haircut + Nails)", minutes: 60 },
+  { id: 4, name: "Bath + Dry", minutes: 35 },
 ];
 
 function Dateformat(d) {
@@ -42,15 +41,7 @@ function to12Hour(time24hr) {
   return `${hour12}:${Format2digits(mm)} ${ampm}`;
 }
 
-{/*
-// just for assignment 1. fake data. will add functionality later.
-const initialAppointments = [
-  { id: "a1", pet: "Kochi", owner: "Billy Jones", groomerId: "g1", serviceId: "nails", start: "09:30", priority: "low" },
-  { id: "a2", pet: "Cake", owner: "Estefania Gonzalez", groomerId: "g2", serviceId: "nails", start: "11:30", priority: "low" },
-  { id: "a3", pet: "Sam", owner: "Maria Jones", groomerId: "g3", serviceId: "bathplusdry", start: "14:00", priority: "medium" },
-  { id: "a4", pet: "Chucho", owner: "Manuel Avila", groomerId: "g1", serviceId: "full", start: "15:00", priority: "high" },
-  { id: "a5", pet: "Hime", owner: "Lupe Garcia", groomerId: "g2", serviceId: "full", start: "15:30", priority: "high" },
-]; */}
+
 
 //REACT
 export default function QueueManagement() {
@@ -76,14 +67,7 @@ export default function QueueManagement() {
         pet: item.petName,
         owner: item.ownerName,
     
-        serviceId:
-          item.serviceId === 1
-            ? "quick"
-            : item.serviceId === 2
-            ? "full"
-            : item.serviceId === 3
-            ? "nails"
-            : "quick",
+        serviceId:item.serviceId,
 
         start: new Date(item.joinedAt).toLocaleTimeString([], {
           hour: "2-digit",
@@ -119,10 +103,10 @@ const allappointments = useMemo(() => {
   if (selectedGroomerId !== "all") {
     list = list.filter((a) => a.groomerId === selectedGroomerId);
   }
-  // by groomer
+  
   if (selectedServiceId !== "all") {
-    list = list.filter((a) => a.serviceId === selectedServiceId);
-  }
+  list = list.filter((a) => a.serviceId === Number(selectedServiceId));
+}
 
   // order by time
   return [...list].sort((x, y) => x.start.localeCompare(y.start));

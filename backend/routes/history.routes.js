@@ -11,7 +11,8 @@ router.get("/", (req, res) => {
 
   // filtering by service
   if (serviceId && serviceId !== "all") {
-    results = results.filter((item) => item.serviceId === serviceId);
+    const numericServiceId = Number(serviceId);
+    results = results.filter((item) => item.serviceId === numericServiceId);
   }
   // sort
   results.sort((a, b) => b.date.localeCompare(a.date));

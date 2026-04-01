@@ -3,11 +3,10 @@ import { useEffect, useMemo, useState } from "react";
 // services
 const services = [
   { id: "all", name: "Services", minutes: 0 },
-  { id: "quick", name: "Quick Wash", minutes: 20 },
-  { id: "full", name: "Full Groom", minutes: 60 },
-  { id: "nails", name: "Nail Trim", minutes: 10 },
-  { id: "haircut", name: "Haircut", minutes: 30 },
-  { id: "bathplusdry", name: "Package", minutes: 35 },
+  { id: 1, name: "Nail trimming", minutes: 10 },
+  { id: 2, name: "Haircut", minutes: 30 },
+  { id: 3, name: "Full Groom (Bath + Haircut + Nails)", minutes: 60 },
+  { id: 4, name: "Bath + Dry", minutes: 35 },
 ];
 
 // groomers
@@ -15,14 +14,6 @@ const groomers = [
   { id: "g1", name: "Lilly Rose" },
   { id: "g2", name: "Julian Rangel" },
   { id: "g3", name: "Ariana Nazario" },
-];
-
-// placeholder FINISH LATER assignment 3
-const initialHistory = [
-  { id: "h1", date: "2026-02-10", pet: "Kochi", groomerId: "g1", serviceId: "nails", outcome: "completed" },
-  { id: "h2", date: "2026-02-12", pet: "Cake", groomerId: "g2", serviceId: "quick", outcome: "canceled" },
-  { id: "h3", date: "2026-02-18", pet: "Sam", groomerId: "g3", serviceId: "full", outcome: "no show" },
-  { id: "h4", date: "2026-02-19", pet: "Chucho", groomerId: "g1", serviceId: "bathplusdry", outcome: "completed" },
 ];
 
 export default function History() {
