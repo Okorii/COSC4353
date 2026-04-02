@@ -110,4 +110,13 @@ describe("Queue Management Routes", () => {
     expect(res.body.error).toBe("Not found.");
   });
 
+  test("POST /api/queue-management/serve-next serves the next entry", async () => {
+    const response = await request(app).post("/api/queue-management/serve-next");
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.message).toBe("Serving next user");
+    expect(response.body.served).toBeDefined();
+    expect(response.body.served.status).toBe("SERVING");
+  });
+
 });
