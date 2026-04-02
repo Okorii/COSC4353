@@ -1,72 +1,165 @@
 const express = require("express");
 const router = express.Router();
+const pool = require("../db");
 
-const queueEntries = require("../data/queueEntries");
-const {validateQueueEntry,sortQueue,estimateWaitTime,
+const {
+  validateQueueEntry,
+  estimateWaitTime,
 } = require("../utils/queueManagementHelpers");
 
+
 // GET current queue. returns sorted.
-router.get("/", (req, res) => {
-  const sorted = sortQueue(queueEntries).map((entry) => ({
-    ...entry,
-    estimatedWaitTime: estimateWaitTime(entry, sortQueue(queueEntries)),
-  }));
-  //sending sorted back to frontend.
-  res.json(sorted);
+router.get("/", async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT
+        entry_id AS id,
+        pet_name AS petName,
+        owner_name AS ownerName,
+        service_id AS serviceId,
+        joined_at AS joinedAt,
+        status
+      FROM queue_entries
+      WHERE status = 'WAITING'
+      ORDER BY joined_at ASC
+    `);
+
+    const withWaitTimes = rows.map((entry, index, arr) => ({
+      ...entry,
+      estimatedWaitTime: estimateWaitTime(entry, arr),
+    }));
+
+    res.json(withWaitTimes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch queue." });
+  }
 });
 
 // POST join queue. adds new pet to queue.
-router.post("/join", (req, res) => {
+router.post("/join", async (req, res) => {
   const errors = validateQueueEntry(req.body);
 
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-  //using backend format
-  const newEntry = {
-    id: `q${queueEntries.length + 1}`,
-    petName: req.body.petName,
-    ownerName: req.body.ownerName,
-    serviceId: req.body.serviceId,
-    joinedAt: new Date().toISOString(),
-    status: "WAITING",
-  };
-  //storing in memory queue array
-  queueEntries.push(newEntry);
+if (errors.length > 0) {
+  return res.status(400).json({ errors });
+}
+  try {
+  const { petName, ownerName, serviceId } = req.body;
 
-  res.status(201).json(newEntry);
+  const [result] = await pool.query(
+    `
+    INSERT INTO queue_entries (pet_name, owner_name, service_id, joined_at, status)
+    VALUES (?, ?, ?, NOW(), 'WAITING')
+    `,
+    [petName, ownerName, serviceId]
+  );
+
+  const [rows] = await pool.query(
+    `
+    SELECT
+      entry_id AS id,
+      pet_name AS petName,
+      owner_name AS ownerName,
+      service_id AS serviceId,
+      joined_at AS joinedAt,
+      status
+    FROM queue_entries
+    WHERE entry_id = ?
+    `,
+    [result.insertId]
+  );
+
+  res.status(201).json(rows[0]);
+} catch (error) {
+  console.error(error);
+  res.status(500).json({ error: "Failed to join queue." });
+}
+  
 });
 
 // POST serve next. Removes next pet, marking as served.
-router.post("/serve-next", (req, res) => {
+router.post("/serve-next", async (req, res) => {
     //earliest arrivals first
-  const sorted = sortQueue(queueEntries);
-    //incase queue empty
-  if (sorted.length === 0) {
+  try {
+  const [rows] = await pool.query(`
+    SELECT
+      entry_id AS id,
+      pet_name AS petName,
+      owner_name AS ownerName,
+      service_id AS serviceId,
+      joined_at AS joinedAt,
+      status
+    FROM queue_entries
+    WHERE status = 'WAITING'
+    ORDER BY joined_at ASC
+    LIMIT 1
+  `);
+
+  if (rows.length === 0) {
     return res.status(400).json({ error: "No one in queue." });
   }
-  //next pet to be served
-  const next = sorted[0];
+
+  const next = rows[0];
+
+  await pool.query(
+    `
+    UPDATE queue_entries
+    SET status = 'SERVING'
+    WHERE entry_id = ?
+    `,
+    [next.id]
+  );
+
   next.status = "SERVING";
-  //remove selected pet from active queue
-  const index = queueEntries.findIndex((e) => e.id === next.id);
-  queueEntries.splice(index, 1);
 
   res.json({ message: "Serving next user", served: next });
+} catch (error) {
+  console.error(error);
+  res.status(500).json({ error: "Failed to serve next user." });
+}
 });
 
 // DELETE remove from queue. Removes entry by ID.
-router.delete("/:id", (req, res) => {
-  const index = queueEntries.findIndex((e) => e.id === req.params.id);
-    //Error if does not exist.
-  if (index === -1) {
+router.delete("/:id", async (req, res) => {
+
+
+  try {
+  const [rows] = await pool.query(
+    `
+    SELECT
+      entry_id AS id,
+      pet_name AS petName,
+      owner_name AS ownerName,
+      service_id AS serviceId,
+      joined_at AS joinedAt,
+      status
+    FROM queue_entries
+    WHERE entry_id = ?
+    `,
+    [req.params.id]
+  );
+
+  if (rows.length === 0) {
     return res.status(404).json({ error: "Not found." });
   }
-  //Remove entry, update status
-  const removed = queueEntries.splice(index, 1)[0];
+
+  const removed = rows[0];
+
+  await pool.query(
+    `
+    UPDATE queue_entries
+    SET status = 'REMOVED'
+    WHERE entry_id = ?
+    `,
+    [req.params.id]
+  );
+
   removed.status = "REMOVED";
 
   res.json({ message: "Removed from queue", removed });
+} catch (error) {
+  console.error(error);
+  res.status(500).json({ error: "Failed to remove queue entry." });
+}
 });
-
 module.exports = router;

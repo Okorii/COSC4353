@@ -175,7 +175,7 @@ export default function History() {
                     const svc = serviceById.get(h.serviceId);
                     const g = groomerById.get(h.groomerId);
 
-                    const dateText = new Date(h.date + "T00:00:00").toLocaleDateString(undefined, {
+                    const dateText = new Date(h.date).toLocaleDateString(undefined, {
                       month: "short",
                       day: "numeric",
                       year: "numeric",

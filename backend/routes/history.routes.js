@@ -1,21 +1,37 @@
 const express = require("express");
 const router = express.Router();
+const pool = require("../db");
 
-// import in memory history 
-const history = require("../data/history");
-// GET all history, returns history records
-router.get("/", (req, res) => {
-  const { serviceId } = req.query;
+router.get("/", async (req, res) => {
+  try {
+    const { serviceId } = req.query;
 
-  let results = [...history];
+    let sql = `
+      SELECT 
+        history_id AS id,
+        date,
+        pet_name AS pet,
+        groomer_id AS groomerId,
+        service_id AS serviceId,
+        outcome
+      FROM history
+    `;
 
-  // filtering by service
-  if (serviceId && serviceId !== "all") {
-    const numericServiceId = Number(serviceId);
-    results = results.filter((item) => item.serviceId === numericServiceId);
+    const params = [];
+
+    if (serviceId && serviceId !== "all") {
+      sql += " WHERE service_id = ?";
+      params.push(Number(serviceId));
+    }
+
+    sql += " ORDER BY date DESC";
+
+    const [rows] = await pool.query(sql, params);
+    res.json(rows);
+  } catch (error) {
+    console.error("History route error:", error);
+    res.status(500).json({ error: "Failed to fetch history." });
   }
-  // sort
-  results.sort((a, b) => b.date.localeCompare(a.date));
-  res.json(results);
 });
+
 module.exports = router;
