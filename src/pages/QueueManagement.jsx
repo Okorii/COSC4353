@@ -1,13 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 
-// employee examples
-const groomers = [
-  { id: "all", name: "Groomers" },
-  { id: "g1", name: "Lilly Rose" },
-  { id: "g2", name: "Julian Rangel" },
-  { id: "g3", name: "Ariana Nazario" },
-];
-
 // services
 const services = [
   { id: "all", name: "Services", minutes: 0 },
@@ -46,7 +38,7 @@ function to12Hour(time24hr) {
 //REACT
 export default function QueueManagement() {
   //select groomer
-  const [selectedGroomerId, setSelectedGroomerId] = useState("all");
+  //const [selectedGroomerId, setSelectedGroomerId] = useState("all");
   //select specific appointment service
   const [selectedServiceId, setSelectedServiceId] = useState("all");
   //select date
@@ -74,8 +66,8 @@ export default function QueueManagement() {
           minute: "2-digit",
           hour12: false,
         }),
-        priority: "low",
-        groomerId: "g1",
+        priority: item.priority,
+        //groomerId: "g1",
       }));
       //update with mapped queue data
       setappointment(mapped);
@@ -99,10 +91,6 @@ export default function QueueManagement() {
 const allappointments = useMemo(() => {
   let list = appointments;
 
-  // by groomer
-  if (selectedGroomerId !== "all") {
-    list = list.filter((a) => a.groomerId === selectedGroomerId);
-  }
   
   if (selectedServiceId !== "all") {
   list = list.filter((a) => a.serviceId === Number(selectedServiceId));
@@ -110,7 +98,7 @@ const allappointments = useMemo(() => {
 
   // order by time
   return [...list].sort((x, y) => x.start.localeCompare(y.start));
-}, [appointments, selectedGroomerId, selectedServiceId]);
+}, [appointments, selectedServiceId]);
 
 
 
@@ -265,17 +253,6 @@ const prioritycolor = (priority) => ({
           
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
 
-    {/*groomer dropdown*/}
-        <select
-        value={selectedGroomerId}
-        onChange={(e) => { setSelectedGroomerId(e.target.value); setmessage(""); }}
-        style={selectgroomer}
-        >
-        {groomers.map((g) => (
-        <option key={g.id} value={g.id}>{g.name}</option>
-      ))}
-        </select>
-
       {/*service dropdown*/}
         <select
         value={selectedServiceId}
@@ -350,7 +327,11 @@ const prioritycolor = (priority) => ({
                         <td style={td}>{to12Hour(a.start)}</td>
                         <td style={td}>{to12Hour(end24)}</td>
                         <td style={td}>{svc?.name ?? "Service"}</td>
-                        <td style={td}><span style={prioritycolor(a.priority)}>{a.priority}</span></td>
+                        <td style={td}>
+                          <span style={prioritycolor(a.priority || "low")}>
+                            {a.priority || "low"}
+                          </span>
+                        </td>
 
                         <td style={td}>
                             <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "nowrap" }}>

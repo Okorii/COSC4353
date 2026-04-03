@@ -13,15 +13,17 @@ router.get("/", async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT
-        entry_id AS id,
-        pet_name AS petName,
-        owner_name AS ownerName,
-        service_id AS serviceId,
-        joined_at AS joinedAt,
-        status
-      FROM queue_entries
-      WHERE status = 'WAITING'
-      ORDER BY joined_at ASC
+        qe.entry_id AS id,
+        qe.pet_name AS petName,
+        qe.owner_name AS ownerName,
+        qe.service_id AS serviceId,
+        qe.joined_at AS joinedAt,
+        qe.status,
+        s.priority
+      FROM queue_entries qe
+      JOIN services s ON qe.service_id = s.service_id
+      WHERE qe.status = 'WAITING'
+      ORDER BY qe.joined_at ASC
     `);
 
     const withWaitTimes = rows.map((entry, index, arr) => ({
@@ -57,17 +59,19 @@ if (errors.length > 0) {
   const [rows] = await pool.query(
     `
     SELECT
-      entry_id AS id,
-      pet_name AS petName,
-      owner_name AS ownerName,
-      service_id AS serviceId,
-      joined_at AS joinedAt,
-      status
-    FROM queue_entries
-    WHERE entry_id = ?
+      qe.entry_id AS id,
+      qe.pet_name AS petName,
+      qe.owner_name AS ownerName,
+      qe.service_id AS serviceId,
+      qe.joined_at AS joinedAt,
+      qe.status,
+      s.priority
+    FROM queue_entries qe
+    JOIN services s ON qe.service_id = s.service_id
+    WHERE qe.entry_id = ?
     `,
     [result.insertId]
-  );
+);
 
   res.status(201).json(rows[0]);
 } catch (error) {
