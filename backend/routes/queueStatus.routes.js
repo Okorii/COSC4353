@@ -2,9 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 
-// ===============================
-// JOIN QUEUE (create entry)
-// ===============================
+// JOIN QUEUE
 router.post("/", async (req, res) => {
   try {
     const { queue_id, user_id } = req.body;
@@ -15,24 +13,21 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // calculate next position
-    const [countRows] = await pool.query(
-      "SELECT COUNT(*) AS count FROM QueueEntry WHERE queue_id = ? AND status = 'waiting'",
-      [queue_id]
-    );
-
-    const position = countRows[0].count + 1;
+    // team schema does not use queue_id/user_id, so map them into queue_entries
+    const petName = `Pet ${user_id}`;
+    const ownerName = `Owner ${user_id}`;
+    const serviceId = Number(queue_id);
 
     const [result] = await pool.query(
-      `INSERT INTO QueueEntry (queue_id, user_id, position)
-       VALUES (?, ?, ?)`,
-      [queue_id, user_id, position]
+      `INSERT INTO queue_entries (pet_name, owner_name, service_id, joined_at, status)
+       VALUES (?, ?, ?, NOW(), 'WAITING')`,
+      [petName, ownerName, serviceId]
     );
 
     res.status(201).json({
       message: "Joined queue successfully",
       entry_id: result.insertId,
-      position
+      position: result.insertId
     });
   } catch (err) {
     console.error("Error joining queue:", err);
@@ -40,49 +35,58 @@ router.post("/", async (req, res) => {
   }
 });
 
-
-// ===============================
-// GET QUEUE STATUS (all entries)
-// ===============================
+// GET QUEUE STATUS
 router.get("/:queueId", async (req, res) => {
   try {
     const { queueId } = req.params;
 
     const [rows] = await pool.query(
-      `SELECT *
-       FROM QueueEntry
-       WHERE queue_id = ?
-       ORDER BY position ASC`,
+      `SELECT
+         entry_id,
+         service_id AS queue_id,
+         pet_name AS user_id,
+         joined_at AS join_time,
+         status
+       FROM queue_entries
+       WHERE service_id = ?
+       ORDER BY joined_at ASC`,
       [queueId]
     );
 
-    res.status(200).json(rows);
+    const formattedRows = rows.map((row, index) => ({
+      ...row,
+      position: index + 1,
+      status: row.status.toLowerCase()
+    }));
+
+    res.status(200).json(formattedRows);
   } catch (err) {
     console.error("Error fetching queue:", err);
     res.status(500).json({ error: "Failed to fetch queue" });
   }
 });
 
-
-// ===============================
-// UPDATE STATUS (served/canceled)
-// ===============================
+// UPDATE STATUS
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ["waiting", "served", "canceled"];
+    const statusMap = {
+      waiting: "WAITING",
+      served: "SERVED",
+      canceled: "REMOVED"
+    };
 
-    if (!validStatuses.includes(status)) {
+    if (!statusMap[status]) {
       return res.status(400).json({
         error: "Invalid status value"
       });
     }
 
     const [result] = await pool.query(
-      "UPDATE QueueEntry SET status = ? WHERE entry_id = ?",
-      [status, id]
+      "UPDATE queue_entries SET status = ? WHERE entry_id = ?",
+      [statusMap[status], id]
     );
 
     if (result.affectedRows === 0) {
@@ -100,16 +104,13 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-
-// ===============================
-// DELETE ENTRY (optional)
-// ===============================
+// DELETE ENTRY
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
     const [result] = await pool.query(
-      "DELETE FROM QueueEntry WHERE entry_id = ?",
+      "DELETE FROM queue_entries WHERE entry_id = ?",
       [id]
     );
 

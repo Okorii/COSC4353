@@ -2,12 +2,21 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 
+// ===============================
 // GET all services
+// ===============================
 router.get("/", async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT * FROM Service ORDER BY service_id ASC"
+      `SELECT
+         service_id,
+         name AS service_name,
+         description,
+         duration_minutes AS expected_duration
+       FROM services
+       ORDER BY service_id ASC`
     );
+
     res.status(200).json(rows);
   } catch (err) {
     console.error("Error fetching services:", err);
@@ -15,14 +24,20 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET one service by id
+// ===============================
+// GET one service by ID
+// ===============================
 router.get("/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-
     const [rows] = await pool.query(
-      "SELECT * FROM Service WHERE service_id = ?",
-      [id]
+      `SELECT
+         service_id,
+         name AS service_name,
+         description,
+         duration_minutes AS expected_duration
+       FROM services
+       WHERE service_id = ?`,
+      [req.params.id]
     );
 
     if (rows.length === 0) {
@@ -36,11 +51,14 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ADD new service
+// ===============================
+// CREATE service
+// ===============================
 router.post("/", async (req, res) => {
   try {
     const { service_name, description, expected_duration } = req.body;
 
+    // validations
     if (!service_name || !expected_duration) {
       return res.status(400).json({
         error: "service_name and expected_duration are required"
@@ -66,7 +84,7 @@ router.post("/", async (req, res) => {
     }
 
     const [result] = await pool.query(
-      `INSERT INTO Service (service_name, description, expected_duration)
+      `INSERT INTO services (name, description, duration_minutes)
        VALUES (?, ?, ?)`,
       [
         service_name,
@@ -85,12 +103,14 @@ router.post("/", async (req, res) => {
   }
 });
 
+// ===============================
 // UPDATE service
+// ===============================
 router.put("/:id", async (req, res) => {
   try {
-    const { id } = req.params;
     const { service_name, description, expected_duration } = req.body;
 
+    // validations
     if (!service_name || !expected_duration) {
       return res.status(400).json({
         error: "service_name and expected_duration are required"
@@ -116,14 +136,14 @@ router.put("/:id", async (req, res) => {
     }
 
     const [result] = await pool.query(
-      `UPDATE Service
-       SET service_name = ?, description = ?, expected_duration = ?
+      `UPDATE services
+       SET name = ?, description = ?, duration_minutes = ?
        WHERE service_id = ?`,
       [
         service_name,
         description || null,
         Number(expected_duration),
-        id
+        req.params.id
       ]
     );
 
@@ -131,29 +151,40 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ error: "Service not found" });
     }
 
-    res.status(200).json({ message: "Service updated successfully" });
+    res.status(200).json({
+      message: "Service updated successfully"
+    });
   } catch (err) {
     console.error("Error updating service:", err);
     res.status(500).json({ error: "Failed to update service" });
   }
 });
 
+// ===============================
 // DELETE service
+// ===============================
 router.delete("/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-
     const [result] = await pool.query(
-      "DELETE FROM Service WHERE service_id = ?",
-      [id]
+      "DELETE FROM services WHERE service_id = ?",
+      [req.params.id]
     );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Service not found" });
     }
 
-    res.status(200).json({ message: "Service deleted successfully" });
+    res.status(200).json({
+      message: "Service deleted successfully"
+    });
   } catch (err) {
+    // handle foreign key constraint cleanly
+    if (err.code === "ER_ROW_IS_REFERENCED_2") {
+      return res.status(400).json({
+        error: "Cannot delete service because it is being used in queue entries"
+      });
+    }
+
     console.error("Error deleting service:", err);
     res.status(500).json({ error: "Failed to delete service" });
   }
