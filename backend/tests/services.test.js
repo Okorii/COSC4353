@@ -3,11 +3,13 @@ const supertest = require("supertest");
 describe("Service Management API", () => {
   let app;
   let request;
+  let createdServiceId;
 
   beforeEach(() => {
     jest.resetModules();
     app = require("../app");
     request = supertest(app);
+    createdServiceId = null;
   });
 
   test("GET /api/services should return all services", async () => {
@@ -16,123 +18,122 @@ describe("Service Management API", () => {
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeGreaterThan(0);
-    expect(res.body[0]).toHaveProperty("name");
+    expect(res.body[0]).toHaveProperty("service_id");
+    expect(res.body[0]).toHaveProperty("service_name");
     expect(res.body[0]).toHaveProperty("description");
-    expect(res.body[0]).toHaveProperty("durationMinutes");
-    expect(res.body[0]).toHaveProperty("priority");
+    expect(res.body[0]).toHaveProperty("expected_duration");
   });
 
   test("POST /api/services should create a valid service", async () => {
     const newService = {
-      name: "Teeth Cleaning",
+      service_name: "Teeth Cleaning",
       description: "Basic teeth cleaning service",
-      durationMinutes: 20,
-      priority: "low",
-      active: true,
+      expected_duration: 20
     };
 
     const res = await request.post("/api/services").send(newService);
 
     expect(res.status).toBe(201);
-    expect(res.body.name).toBe("Teeth Cleaning");
-    expect(res.body.description).toBe("Basic teeth cleaning service");
-    expect(res.body.durationMinutes).toBe(20);
-    expect(res.body.priority).toBe("low");
-    expect(res.body.active).toBe(true);
+    expect(res.body.message).toBe("Service added successfully");
+    expect(res.body).toHaveProperty("service_id");
+
+    createdServiceId = res.body.service_id;
   });
 
-  test("POST /api/services should reject missing name", async () => {
+  test("POST /api/services should reject missing service_name", async () => {
     const badService = {
-      name: "",
+      service_name: "",
       description: "Basic teeth cleaning service",
-      durationMinutes: 20,
-      priority: "low",
-      active: true,
+      expected_duration: 20
     };
 
     const res = await request.post("/api/services").send(badService);
 
     expect(res.status).toBe(400);
-    expect(res.body.errors).toHaveProperty("name");
+    expect(res.body).toHaveProperty("error");
   });
 
-  test("POST /api/services should reject missing description", async () => {
+  test("POST /api/services should reject missing expected_duration", async () => {
     const badService = {
-      name: "Teeth Cleaning",
-      description: "",
-      durationMinutes: 20,
-      priority: "low",
-      active: true,
+      service_name: "Teeth Cleaning",
+      description: "Basic teeth cleaning service"
     };
 
     const res = await request.post("/api/services").send(badService);
 
     expect(res.status).toBe(400);
-    expect(res.body.errors).toHaveProperty("description");
+    expect(res.body).toHaveProperty("error");
   });
 
   test("POST /api/services should reject invalid duration", async () => {
     const badService = {
-      name: "Teeth Cleaning",
+      service_name: "Teeth Cleaning",
       description: "Basic teeth cleaning service",
-      durationMinutes: 0,
-      priority: "low",
-      active: true,
+      expected_duration: 0
     };
 
     const res = await request.post("/api/services").send(badService);
 
     expect(res.status).toBe(400);
-    expect(res.body.errors).toHaveProperty("durationMinutes");
+    expect(res.body).toHaveProperty("error");
   });
 
-  test("POST /api/services should reject invalid priority", async () => {
-    const badService = {
-      name: "Teeth Cleaning",
-      description: "Basic teeth cleaning service",
-      durationMinutes: 20,
-      priority: "urgent",
-      active: true,
-    };
+  test("GET /api/services/:id should return a single service", async () => {
+    const res = await request.get("/api/services/1");
 
-    const res = await request.post("/api/services").send(badService);
-
-    expect(res.status).toBe(400);
-    expect(res.body.errors).toHaveProperty("priority");
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("service_id");
+    expect(res.body).toHaveProperty("service_name");
+    expect(res.body).toHaveProperty("description");
+    expect(res.body).toHaveProperty("expected_duration");
   });
 
   test("PUT /api/services/:id should update an existing service", async () => {
+    const createRes = await request.post("/api/services").send({
+      service_name: "Temp Service",
+      description: "Temp description",
+      expected_duration: 25
+    });
+
+    const serviceId = createRes.body.service_id;
+
     const updatedService = {
-      name: "Updated Haircut",
+      service_name: "Updated Haircut",
       description: "Updated haircut description",
-      durationMinutes: 40,
-      priority: "high",
-      active: true,
+      expected_duration: 40
     };
 
-    const res = await request.put("/api/services/2").send(updatedService);
+    const res = await request.put(`/api/services/${serviceId}`).send(updatedService);
 
     expect(res.status).toBe(200);
-    expect(res.body.id).toBe(2);
-    expect(res.body.name).toBe("Updated Haircut");
-    expect(res.body.description).toBe("Updated haircut description");
-    expect(res.body.durationMinutes).toBe(40);
-    expect(res.body.priority).toBe("high");
+    expect(res.body.message).toBe("Service updated successfully");
+
+    const getRes = await request.get(`/api/services/${serviceId}`);
+    expect(getRes.status).toBe(200);
+    expect(getRes.body.service_name).toBe("Updated Haircut");
+    expect(getRes.body.description).toBe("Updated haircut description");
+    expect(getRes.body.expected_duration).toBe(40);
   });
 
-  test("PATCH /api/services/:id/toggle-active should toggle service status", async () => {
-    const res = await request.patch("/api/services/1/toggle-active");
+  test("DELETE /api/services/:id should remove a service that is not referenced by a queue", async () => {
+    const createRes = await request.post("/api/services").send({
+      service_name: "Delete Me",
+      description: "Temporary service",
+      expected_duration: 10
+    });
+
+    const serviceId = createRes.body.service_id;
+
+    const res = await request.delete(`/api/services/${serviceId}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.id).toBe(1);
-    expect(typeof res.body.active).toBe("boolean");
+    expect(res.body.message).toBe("Service deleted successfully");
   });
 
-  test("DELETE /api/services/:id should remove a service", async () => {
+  test("DELETE /api/services/:id should fail for a service used by a queue", async () => {
     const res = await request.delete("/api/services/1");
 
-    expect(res.status).toBe(200);
-    expect(res.body.message).toBe("Service removed.");
-    expect(res.body.service.id).toBe(1);
+    expect([400, 500]).toContain(res.status);
+    expect(res.body).toHaveProperty("error");
   });
 });
