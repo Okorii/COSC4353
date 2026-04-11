@@ -40,13 +40,21 @@ router.get("/", async (req, res) => {
 
 // POST join queue. adds new pet to queue.
 router.post("/join", async (req, res) => {
-  const errors = validateQueueEntry(req.body);
-
-if (errors.length > 0) {
-  return res.status(400).json({ errors });
-}
-  try {
   const { petName, ownerName, serviceId } = req.body;
+
+    if (!petName) {
+      return res.status(400).json({ error: "Pet Name is required" });
+    }
+
+    if (!ownerName) {
+      return res.status(400).json({ error: "Owner Name is required" });
+    }
+
+    if (!serviceId) {
+      return res.status(400).json({ error: "Service Id is required" });
+    }
+
+  try {
 
   const [result] = await pool.query(
     `
@@ -80,6 +88,35 @@ if (errors.length > 0) {
 }
   
 });
+
+router.post("/leave", async (req, res) => {
+  const { petName, ownerName } = req.body;
+
+  if (!petName || !ownerName) {
+    return res.status(400).json({ error: "pet_name and owner_name are required" });
+  }
+
+  try {
+    const [result] = await pool.query(
+      `
+      DELETE FROM queue_entries
+      WHERE pet_name = ? AND owner_name = ? AND status = 'WAITING'
+      LIMIT 1
+      `,
+      [petName, ownerName]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Queue entry not found" });
+    }
+
+    res.status(200).json({ message: "Left queue successfully" });
+  } catch (err) {
+    console.error("Error leaving queue:", err);
+    res.status(500).json({ error: "Failed to leave queue" });
+  }
+});
+
 
 // POST serve next. Removes next pet, marking as served.
 router.post("/serve-next", async (req, res) => {

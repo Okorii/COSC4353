@@ -45,9 +45,9 @@ export default function App() {
           <QueueStatus />
         ) : page === "admin" ? (
            <AdminDashboard 
-    goToQueue={() => setPage("queue")}
-    goToServices={() => setPage("service")}
-  />
+          goToQueue={() => setPage("queue")}
+          goToServices={() => setPage("service")}
+        />
 ) : page === "join" ? (
   <JoinQueue 
     goToStatus={() => setPage("status")} 

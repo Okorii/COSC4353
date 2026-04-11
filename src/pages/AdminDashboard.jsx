@@ -2,42 +2,44 @@ import { useState, useEffect } from "react";
 
 export default function AdminDashboard({goToServices, goToQueue}){
   const [services, setServices] = useState([]);
+  const [queueData, setQueue] = useState([]);
   
-  //loading services
   useEffect(() => {
+    //loading services
     fetch("http://localhost:3001/api/services")
       .then((res) => res.json())
       .then((data) => setServices(data))
       .catch((err) => console.error("Error loading services:", err));
-  }, []);
 
-  //loading queue info
-  useEffect(() => {
+    //loading queue info
     fetch("http://localhost:3001/api/queue-management")
       .then((res) => res.json())
       .then((data) => setQueue(data))
       .catch((err) => console.error("Error loading queue:", err));
   }, []);
 
+  function getQueueLength(serviceId) {
+    return queueData.filter(
+      (item) =>
+        String(item.service_id ?? item.serviceId) === String(serviceId)
+    ).length;
+  }
+
   function toggleService(id) {
     fetch(`http://localhost:3001/api/services/${id}/toggle-active`, {
         method: "PATCH",
       })
-        .then(async (res) => {
-          const data = await res.json();
-          if (!res.ok) {
-            throw new Error(data.message || "Unable to toggle service.");
-          }
-          return data;
-        })
-        .then((updatedService) => {
-          setServices((prev) =>
-            prev.map((s) => (s.id === updatedService.id ? updatedService : s))
-          );
-        })
-        .catch((err) => {
-          console.error("Toggle error:", err);
-        });
+      .then((res) => res.json())
+      .then((data) => {
+        setServices((prev) =>
+          prev.map((service) =>
+            service.service_id === serviceId
+              ? { ...service, active: data.active }
+              : service
+          )
+        );
+      })
+      .catch((err) => console.error("Error toggling service:", err));
   }
 
   return (
@@ -52,13 +54,14 @@ export default function AdminDashboard({goToServices, goToQueue}){
 
         <div style={styles.list}>
           {services.map((s) => (
-            <div key={s.id} style={styles.serviceRow}>
+            <div key={s.service_id} style={styles.serviceRow}>
               <div style={{ flex: 1 }}>
                 <div style={styles.serviceName}>{s.name}</div>
 
                 <div style={styles.infoText}>
-                  {s.durationMinutes} min • Queue length: {s.queueLength} •{" "}
-                  <span style={s.actvie ? styles.openText : styles.closedText}>
+                  {s.expected_duration} min • Queue length: 
+                  {getQueueLength(s.service_id)} •{" "}
+                  <span style={s.active ? styles.openText : styles.closedText}>
                     {s.active ? "Open" : "Closed"}
                   </span>
                 </div>
@@ -68,7 +71,7 @@ export default function AdminDashboard({goToServices, goToQueue}){
 
               <button
                 style={s.active ? styles.closeBtn : styles.openBtn}
-                onClick={() => toggleService(s.id)}
+                onClick={() => toggleService(s.service_id)}
               >
                 {s.active ? "Close" : "Open"}
               </button>
