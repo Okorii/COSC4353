@@ -8,6 +8,7 @@ registerForm.addEventListener("submit", async function (event) {
   const lastName = document.getElementById("lastName").value.trim();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
+  const phone = document.getElementById("phone").value.trim();
 
   if (!firstName || !lastName || !email || !password) {
     message.textContent = "Please fill in all fields.";
@@ -27,12 +28,7 @@ registerForm.addEventListener("submit", async function (event) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        name: fullName,
-        email,
-        password,
-        role: "user"
-      })
+      body: JSON.stringify({ name: fullName, email, password, phone, role: "user" }),
     });
 
     const data = await response.json();

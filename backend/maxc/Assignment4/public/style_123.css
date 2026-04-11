@@ -1,0 +1,192 @@
+/* Page background */
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e1e2f, #2b2b45);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+}
+
+h1 {
+    margin-bottom: 40px;
+    font-size: 50px;
+}
+
+/* Login / Register container */
+.container {
+    background: grey;
+    padding: 20px;
+    border-radius: 15px;
+    width: 400px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 40px;
+}
+
+/* Form layout */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 10px;
+    color: black;
+}
+
+input {
+    padding: 8px;
+    margin-bottom: 10px;
+    color: black;
+}
+
+/* Buttons */
+button {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 12px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    background-color: green;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+/* Dashboard layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 columns */
+  gap: 20px; /* space between boxes */
+  max-width: 800px;
+  margin: auto;
+}
+
+.card {
+  background: #8c8c8c;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* Overview section */
+.queue-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.label {
+    color: black;
+}
+
+.big-number {
+    font-size: 64px;
+    font-weight: bold;
+    color: #0f766e;
+}
+
+.muted {
+    color: black;
+}
+
+/* Notification box */
+.text {
+    font-size: 18px;
+    color: black;
+    background-color: rgb(192, 189, 189);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* JS message */
+#message {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #ffd166;
+}
+
+#logoutBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  padding: 10px 16px;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#notificationList,
+#historyList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.time {
+    font-size: 14px;
+    color: #333;
+    margin-top: 5px;
+}
+
+a {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: white;
+    text-decoration: underline;
+}
+
+.overview {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.notification {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.history {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.services {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  background-color: #ff4d4d; /* red */
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #cc0000; /* darker red on hover */
+}
