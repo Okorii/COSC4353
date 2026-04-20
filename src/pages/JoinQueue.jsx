@@ -4,7 +4,7 @@ export default function JoinQueue({ goToStatus }) {
   const [services, setServices] = useState([]);
   const [queue, setQueue] = useState([]);
   const [petName, setPetName] = useState("");
-  const [ownerName, setEmail] = useState("");
+  const [ownerName, setOwner] = useState("");
   const [serviceId, setServiceId] = useState("");
   const [message, setMessage] = useState("");
 
@@ -14,7 +14,7 @@ export default function JoinQueue({ goToStatus }) {
       .then((data) => {
         setServices(data);
         if (data.length > 0) {
-          setServiceId(String(data[0].serviceId));
+          setServiceId(String(data[0].service_Id));
         }
       })
       .catch((err) => console.error("Error loading services:", err));
@@ -31,7 +31,7 @@ export default function JoinQueue({ goToStatus }) {
   );
 
   const queueForService = useMemo(
-    () => queue.filter((q) => String(q.service_id) === String(serviceId)),
+    () => queue.filter((q) => String(q.serviceId ?? q.service_id) === String(serviceId)),
     [queue, serviceId]
   );
 
@@ -53,6 +53,18 @@ export default function JoinQueue({ goToStatus }) {
     setMessage("");
     const err = validate();
     if (err) return setMessage(err);
+
+    const alreadyInQueue = queue.some(
+    (q) =>
+        String(q.ownerName).toLowerCase() === ownerName.trim().toLowerCase() &&
+        String(q.petName).toLowerCase() === petName.trim().toLowerCase() &&
+        String(q.status).toUpperCase() === "WAITING"
+    );
+
+    if (alreadyInQueue) {
+      setMessage("Pet already in the queue.");
+      return;
+    }
 
     fetch("http://localhost:3001/api/queue-management/join", {
       method: "POST",
@@ -138,7 +150,7 @@ export default function JoinQueue({ goToStatus }) {
             type="email"
             value={ownerName}
             maxLength={100}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setOwner(e.target.value)}
             placeholder="you@email.com"
           />
 
