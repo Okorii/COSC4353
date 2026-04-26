@@ -22,7 +22,7 @@ export default function History() {
   // history
   const [historyList, setHistoryList] = useState([]);
 
-  // notifications - implementation will add later
+  // notifications 
   const [message, setmessage] = useState("");
 
   // history data from backend API
