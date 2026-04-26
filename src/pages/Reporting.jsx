@@ -188,8 +188,8 @@ function ReportTable({ title, columns, rows }) {
 const page = {
   minHeight: "100vh",
   width: "100vw",
-  background: "#c4e7e5",
-  color: "#000",
+  background: "#24243a",
+  color: "#ffffff",
   fontFamily: "system-ui, Arial",
   padding: 20,
   boxSizing: "border-box",
@@ -205,82 +205,100 @@ const header = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  marginBottom: 14,
-  padding: "14px 16px",
+  marginBottom: 18,
+  padding: "18px 20px",
   borderRadius: 14,
-  background: "rgba(255,255,255,0.05)",
+  background: "#8f8f8f",
+  color: "#000000",
+  boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
 };
 
 const selectStyle = {
-  padding: "8px 10px",
+  padding: "10px 12px",
   borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.15)",
-  background: "rgba(0,0,0,0.25)",
-  color: "#eee",
+  border: "2px solid #ffffff",
+  background: "#ffffff",
+  color: "#000000",
+  fontWeight: 600,
 };
 
 const button = {
-  padding: "9px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(0,0,0,0.12)",
-  background: "rgba(83, 180, 88, 0.81)",
-  color: "#fff",
+  padding: "10px 16px",
+  borderRadius: 10,
+  border: "none",
+  background: "#2fa043",
+  color: "#ffffff",
   cursor: "pointer",
-  fontWeight: 700,
+  fontWeight: 800,
 };
 
 const messageBox = {
   padding: 12,
   marginBottom: 12,
   borderRadius: 12,
-  background: "rgba(0,0,0,0.05)",
+  background: "#ffd6d6",
+  color: "#7a0000",
+  fontWeight: 700,
 };
 
 const cards = {
   display: "grid",
   gridTemplateColumns: "repeat(4, 1fr)",
-  gap: 12,
-  marginBottom: 16,
+  gap: 14,
+  marginBottom: 18,
 };
 
 const card = {
-  padding: 16,
+  padding: 18,
   borderRadius: 14,
-  border: "3px solid #000",
-  background: "rgba(49, 97, 123, 0.14)",
+  border: "2px solid #ffffff",
+  background: "#8f8f8f",
+  color: "#000000",
+  boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
 };
 
 const cardLabel = {
   fontSize: 14,
-  opacity: 0.8,
+  fontWeight: 700,
+  color: "#111111",
 };
 
 const cardNumber = {
-  fontSize: 30,
-  fontWeight: 800,
+  fontSize: 32,
+  fontWeight: 900,
   marginTop: 8,
+  color: "#000000",
 };
 
 const tableBox = {
   borderRadius: 14,
   overflow: "hidden",
-  border: "3px solid #000",
-  background: "rgba(49, 97, 123, 0.14)",
-  marginBottom: 16,
+  border: "2px solid #ffffff",
+  background: "#8f8f8f",
+  color: "#000000",
+  marginBottom: 18,
+  boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
 };
 
 const tableTitle = {
-  padding: "12px 16px",
-  fontWeight: 700,
-  borderBottom: "3px solid #000",
+  padding: "14px 16px",
+  fontWeight: 900,
+  background: "#707070",
+  color: "#ffffff",
+  borderBottom: "2px solid #ffffff",
 };
 
 const th = {
-  padding: "10px 16px",
+  padding: "12px 16px",
   textAlign: "left",
+  background: "#d9e6f7",
+  color: "#000000",
+  fontWeight: 900,
 };
 
 const td = {
   padding: "12px 16px",
-  borderTop: "1px solid rgba(0,0,0,0.15)",
+  borderTop: "1px solid rgba(0,0,0,0.25)",
+  color: "#000000",
+  background: "#f4f4f4",
 };

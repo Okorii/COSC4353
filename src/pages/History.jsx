@@ -69,8 +69,8 @@ export default function History() {
       style={{
         minHeight: "100vh",
         width: "100vw",
-        background: "#c4e7e5",
-        color: "#000000",
+        background: "#24243a",
+        color: "#ffffff",
         fontFamily: "system-ui, Arial",
         padding: 20,
         boxSizing: "border-box",
@@ -86,7 +86,9 @@ export default function History() {
             marginBottom: 14,
             padding: "14px 16px",
             borderRadius: 14,
-            background: "rgba(255,255,255,0.05)",
+            background: "#8f8f8f",
+            color:"#000000",
+            boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
             border: "1px solid rgba(255,255,255,0.05)",
           }}
         >
@@ -133,8 +135,10 @@ export default function History() {
           style={{
             borderRadius: 14,
             overflow: "hidden",
-            border: "3px solid #000",
-            background: "rgba(49, 97, 123, 0.14)",
+            border: "2px solid #ffffff",
+            background: "#8f8f8f",
+            color: "#000000",
+            boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
           }}
         >
           <div
@@ -201,13 +205,27 @@ export default function History() {
   );
 }
 
-const th = {padding: "10px 16px"};
-const td = {padding: "12px 16px",verticalAlign: "middle" };
+const th = {
+  padding: "12px 16px",
+  background: "#d9e6f7",
+  color: "#000000",
+  fontWeight: 900,
+  textAlign: "left",
+};
+
+const td = {
+  padding: "12px 16px",
+  verticalAlign: "middle",
+  color: "#000000",
+  background: "#f4f4f4",
+  borderTop: "1px solid rgba(0,0,0,0.25)",
+};
 
 const selectgroomer = {
-  padding: "8px 10px",
+  padding: "10px 12px",
   borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.15)",
-  background: "rgba(0,0,0,0.25)",
-  color: "#eee",
+  border: "2px solid #ffffff",
+  background: "#ffffff",
+  color: "#000000",
+  fontWeight: 600,
 };
