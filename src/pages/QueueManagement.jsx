@@ -218,8 +218,8 @@ const prioritycolor = (priority) => ({
     <div style={{ //background
         minHeight: "100vh", 
         width: "100vw", 
-        background: "#c4e7e5", 
-        color: "#000000", 
+        background: "#24243a", 
+        color: "#ffffff", 
         fontFamily: "system-ui, Arial", 
         padding: 20 ,
         boxSizing: "border-box",
@@ -235,11 +235,12 @@ const prioritycolor = (priority) => ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 14,
-          padding: "14px 16px",
+          marginBottom: 18,
+          padding: "18px 20px",
           borderRadius: 14,
-          background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.05)",
+          background: "#8f8f8f",
+          color:"#000000",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
         }}>
             {/*title info*/}
           <div>
@@ -271,8 +272,9 @@ const prioritycolor = (priority) => ({
           <div style={{
             padding: 12, marginBottom: 12,
             borderRadius: 12,
-            background: "rgba(0, 0, 0, 0.05)",
-            border: "1px solid rgba(255,255,255,0.05)",
+            background: "#ffd6d6",
+            color:"#7a0000",
+            fontWeight: 700,
           }}>
             {message}
           </div>
@@ -282,8 +284,10 @@ const prioritycolor = (priority) => ({
         <div style={{
           borderRadius: 14,
           overflow: "hidden",
-          border: "3px solid #000",
-          background: "rgba(49, 97, 123, 0.14)",
+          border: "2px solid #ffffff",
+          background: "#8f8f8f",
+          color: "#000000",
+          boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
         }}>
           <div style={{ padding: "12px 16px", 
             display: "flex", 
@@ -295,7 +299,7 @@ const prioritycolor = (priority) => ({
           </div>
             
         
-          <div style={{ borderTop: "3px solid rgb(0, 0, 0)" }}>
+          <div style={{ borderTop: "2px solid #ffffff" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ textAlign: "left", fontSize: 12, letterSpacing: 0.7, opacity: 0.8 }}>
@@ -355,16 +359,30 @@ const prioritycolor = (priority) => ({
   );
 }
 
-const th = { padding: "10px 16px" };
-const td = { padding: "12px 16px", verticalAlign: "middle" };
+const th = {
+  padding: "12px 16px",
+  background: "#d9e6f7",
+  color: "#000000",
+  fontWeight: 900,
+  textAlign: "left",
+};
+
+const td = {
+  padding: "12px 16px",
+  verticalAlign: "middle",
+  color: "#000000",
+  background: "#f4f4f4",
+  borderTop: "1px solid rgba(0,0,0,0.25)",
+};
 
 //for dropdown
 const selectgroomer = {
-  padding: "8px 10px",
+  padding: "10px 12px",
   borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.15)",
-  background: "rgba(0,0,0,0.25)",
-  color: "#eee",
+  border: "2px solid #ffffff",
+  background: "#ffffff",
+  color: "#000000",
+  fontWeight: 600,
 };
 
 //base
@@ -384,51 +402,52 @@ const basebuttonformat = {
 const arrowbuttons = {
   padding: "6px 10px",
   borderRadius: 10,
-  border: "1px solid rgba(22, 9, 9, 0.15)",
-  background: "rgba(0,0,0,0.20)",
-  color: "#eee",
+  border: "1px solid rgba(0,0,0,0.25)",
+  background: "#ffffff",
+  color: "#000000",
   cursor: "pointer",
+  fontWeight: 800,
 };
 
 //serve next button
 const Servenextbutton = {
-  padding: "9px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(0, 0, 0, 0.12)",
-  background: "rgba(83, 180, 88, 0.81)",
+  padding: "10px 16px",
+  borderRadius: 10,
+  border: "none",
+  background: "#2fa043",
   color: "#ffffff",
   cursor: "pointer",
-  fontWeight: 700,
+  fontWeight: 800,
 };
 
 //up and down buttons
 const upanddownbutton = {
   ...basebuttonformat,
-  border: "1px solid rgba(0,0,0,0.18)",
-  background: "#403e3ea1", 
-  color: "#fff",
+  border: "none",
+  background: "#3f3f46", 
+  color: "#ffffff",
 };
 
 //ready button
 const readybutton = {
    ...basebuttonformat,
-  border: "1px solid rgba(0,0,0,0.12)",
-  background: "#36b13cd6", 
-  color: "#fff",
+  border: "none",
+  background: "#36b13c", 
+  color: "#ffffff",
 };
 
 //message button
 const messagebutton = { 
     ...basebuttonformat, 
-    border: "1px solid rgba(0,0,0,0.18)", 
-    background: "#403e3ea1", 
-    color: "#fff", };
+    border: "none", 
+    background: "#3f3f46", 
+    color: "#ffffff", };
 
 
 //remove button
 const removebutton = {
   ...basebuttonformat,
-  border: "1px solid rgba(0,0,0,0.12)",
+  border: "none",
   background: "#ef4444", // red
-  color: "#fff",
+  color: "#ffffff",
 };

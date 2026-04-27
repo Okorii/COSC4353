@@ -5,6 +5,7 @@ import QueueStatus from "./pages/QueueStatus.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import JoinQueue from "./pages/JoinQueue.jsx";
 import History from "./pages/History.jsx";
+import Reporting from "./pages/Reporting.jsx";
 
 export default function App() {
   const [page, setPage] = useState("queue");
@@ -34,27 +35,24 @@ export default function App() {
         <button style={tabBtn(page === "history")} onClick={() => setPage("history")}>
           History
         </button>
+        <button style={tabBtn(page === "reporting")} onClick={() => setPage("reporting")}>
+        Reporting
+        </button>
       </div>
 
       <div style={pageWrap}>
-        {page === "queue" ? (
-          <QueueManagement />
-        ) : page === "service" ? (
-          <ServiceManagement />
-        ) : page === "status" ? (
-          <QueueStatus />
-        ) : page === "admin" ? (
-           <AdminDashboard 
-    goToQueue={() => setPage("queue")}
-    goToServices={() => setPage("service")}
-  />
-) : page === "join" ? (
-  <JoinQueue 
-    goToStatus={() => setPage("status")} 
-  />
-  ):(
-  <History/>
-  )}
+        {page === "queue" && <QueueManagement />}
+        {page === "service" && <ServiceManagement />}
+        {page === "status" && <QueueStatus />}
+        {page === "admin" && (
+          <AdminDashboard 
+            goToQueue={() => setPage("queue")}
+            goToServices={() => setPage("service")}
+          />
+        )}
+        {page === "join" && <JoinQueue goToStatus={() => setPage("status")} />}
+        {page === "history" && <History />}
+        {page === "reporting" && <Reporting />}
       </div>
     </div>
   );

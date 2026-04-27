@@ -12,7 +12,8 @@ router.get("/", async (req, res) => {
          service_id,
          name AS service_name,
          description,
-         duration_minutes AS expected_duration
+         duration_minutes AS expected_duration,
+         active
        FROM services
        ORDER BY service_id ASC`
     );
@@ -34,7 +35,8 @@ router.get("/:id", async (req, res) => {
          service_id,
          name AS service_name,
          description,
-         duration_minutes AS expected_duration
+         duration_minutes AS expected_duration,
+         active
        FROM services
        WHERE service_id = ?`,
       [req.params.id]
@@ -56,7 +58,7 @@ router.get("/:id", async (req, res) => {
 // ===============================
 router.post("/", async (req, res) => {
   try {
-    const { service_name, description, expected_duration } = req.body;
+    const { service_name, description, expected_duration} = req.body;
 
     // validations
     if (!service_name || !expected_duration) {
@@ -187,6 +189,36 @@ router.delete("/:id", async (req, res) => {
 
     console.error("Error deleting service:", err);
     res.status(500).json({ error: "Failed to delete service" });
+  }
+});
+
+//toggle code
+router.patch("/:id/toggle", async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      "SELECT active FROM services WHERE service_id = ?",
+      [req.params.id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Service not found" });
+    }
+
+    const currentValue = rows[0].active;
+    const newValue = currentValue ? 0 : 1;
+
+    await pool.query(
+      "UPDATE services SET active = ? WHERE service_id = ?",
+      [newValue, req.params.id]
+    );
+
+    res.status(200).json({
+      message: "Service status updated successfully",
+      active: newValue,
+    });
+  } catch (err) {
+    console.error("Error toggling service:", err);
+    res.status(500).json({ error: "Failed to toggle service status" });
   }
 });
 
