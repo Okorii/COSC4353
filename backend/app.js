@@ -8,6 +8,7 @@ const queueManagementRoutes = require("./routes/queueManagement.routes");
 const historyRoutes = require("./routes/history.routes");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const reportsRoutes = require("./routes/reports.routes");
 
 const app = express();
 
@@ -26,5 +27,6 @@ app.use("/api/queue-management", queueManagementRoutes);
 app.use("/api/history", historyRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/reports", reportsRoutes);
 
 module.exports = app;
