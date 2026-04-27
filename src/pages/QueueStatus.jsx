@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 
-/**
- * QueueSmart - Queue Status Screen (User)
- * Connected to backend APIs
- */
 export default function QueueStatus() {
   const [queueInfo, setQueueInfo] = useState({
+    entryId: null,
     serviceName: "",
     petName: "",
     position: 0,
@@ -17,24 +14,54 @@ export default function QueueStatus() {
 
   const [notifications, setNotifications] = useState([]);
 
-  async function loadQueueStatus() {
+  async function loadQueueStatus(showNotification = false) {
     try {
-      const res = await fetch("http://localhost:3001/api/queue-status/q1");
+      const res = await fetch("http://localhost:3001/api/queue-management");
       const data = await res.json();
 
-      if (!res.ok) return;
+      if (!res.ok) {
+        console.error("Failed response:", data);
+        return;
+      }
+
+      const entry = data[0];
+
+      if (!entry) {
+        setQueueInfo({
+          entryId: null,
+          serviceName: "",
+          petName: "",
+          position: 0,
+          totalInQueue: 0,
+          etaMinutes: 0,
+          status: "WAITING",
+          lastUpdated: new Date(),
+        });
+        return;
+      }
 
       setQueueInfo({
-        ...data.queueInfo,
-        lastUpdated: new Date(data.queueInfo.lastUpdated),
+        entryId: entry.id,
+        serviceName: `Service ${entry.serviceId}`,
+        petName: entry.petName,
+        position: 1,
+        totalInQueue: data.length,
+        etaMinutes: entry.estimatedWaitTime || 0,
+        status: entry.status,
+        lastUpdated: new Date(),
       });
 
-      setNotifications(
-        data.notifications.map((n) => ({
-          ...n,
-          time: new Date(n.time),
-        }))
-      );
+      if (showNotification) {
+        setNotifications((prev) => [
+          {
+            id: Date.now(),
+            type: "success",
+            text: "Queue status refreshed.",
+            time: new Date(),
+          },
+          ...prev,
+        ]);
+      }
     } catch (error) {
       console.error("Failed to load queue status", error);
     }
@@ -46,12 +73,13 @@ export default function QueueStatus() {
 
   const statusLabel = useMemo(() => {
     switch (queueInfo.status) {
-      case "ALMOST_READY":
-        return "Almost Ready";
+      case "SERVING":
+        return "Serving";
       case "SERVED":
         return "Served";
-      case "READY_FOR_PICKUP":
-        return "Ready for Pickup";
+      case "REMOVED":
+        return "Removed";
+      case "WAITING":
       default:
         return "Waiting";
     }
@@ -59,7 +87,7 @@ export default function QueueStatus() {
 
   const statusStyle = useMemo(() => {
     switch (queueInfo.status) {
-      case "ALMOST_READY":
+      case "SERVING":
         return {
           borderColor: "#f59e0b",
           background: "#fffbeb",
@@ -71,67 +99,62 @@ export default function QueueStatus() {
           background: "#ecfdf5",
           color: "#065f46",
         };
-      case "READY_FOR_PICKUP":
+      case "REMOVED":
         return {
-          borderColor: "#22c55e",
-          background: "#f0fdf4",
-          color: "#166534",
+          borderColor: "#ef4444",
+          background: "#fef2f2",
+          color: "#991b1b",
         };
+      case "WAITING":
       default:
-        return { borderColor: "#3b82f6", background: "#eff6ff", color: "#1e40af" };
+        return {
+          borderColor: "#3b82f6",
+          background: "#eff6ff",
+          color: "#1e40af",
+        };
     }
   }, [queueInfo.status]);
 
   const progress = useMemo(() => {
     if (queueInfo.totalInQueue <= 0) return 0;
     const p =
-      (queueInfo.totalInQueue - queueInfo.position + 1) / queueInfo.totalInQueue;
+      (queueInfo.totalInQueue - queueInfo.position + 1) /
+      queueInfo.totalInQueue;
     return Math.max(0, Math.min(1, p));
   }, [queueInfo.position, queueInfo.totalInQueue]);
 
   async function refreshStatus() {
-    try {
-      const res = await fetch("http://localhost:3001/api/queue-status/q1/refresh", {
-        method: "POST",
-      });
-  
-      const data = await res.json();
-  
-      if (!res.ok) return;
-  
-      setQueueInfo({
-        ...data.queueInfo,
-        lastUpdated: new Date(data.queueInfo.lastUpdated),
-      });
-  
-      setNotifications(
-        data.notifications.map((n) => ({
-          ...n,
-          time: new Date(n.time),
-        }))
-      );
-    } catch (error) {
-      console.error("Failed to refresh queue status", error);
-    }
+    await loadQueueStatus(true);
   }
 
   async function leaveQueue() {
+    if (!queueInfo.entryId) return;
+
     try {
-      const res = await fetch("http://localhost:3001/api/queue-status/q1", {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `http://localhost:3001/api/queue-management/${queueInfo.entryId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-      if (!res.ok) return;
+      const data = await res.json();
 
-      setQueueInfo((prev) => ({
-        ...prev,
+      if (!res.ok) {
+        console.error("Failed to leave queue:", data);
+        return;
+      }
+
+      setQueueInfo({
+        entryId: null,
         serviceName: "",
+        petName: "",
         position: 0,
         totalInQueue: 0,
         etaMinutes: 0,
         status: "WAITING",
         lastUpdated: new Date(),
-      }));
+      });
 
       setNotifications((prev) => [
         {
@@ -155,7 +178,7 @@ export default function QueueStatus() {
         <div>
           <h1 style={styles.title}>Queue Status</h1>
           <p style={styles.subtitle}>
-            Track your pet’s place in line and estimated wait time.
+            Track your pet’s place in line, current status, and wait time.
           </p>
         </div>
         <div style={{ ...styles.badge, ...statusStyle }}>{statusLabel}</div>
@@ -165,44 +188,65 @@ export default function QueueStatus() {
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Not currently in a queue</h2>
           <p style={styles.cardText}>
-            Join a service queue to see your position, ETA, and updates here.
+            Join a service queue to see your pet’s status here.
           </p>
+
+          <button style={styles.primaryBtn} onClick={refreshStatus}>
+            Refresh Status
+          </button>
         </div>
       ) : (
         <>
+          <div style={styles.summaryGrid}>
+            <div style={styles.statCard}>
+              <span style={styles.label}>Pet</span>
+              <strong>{queueInfo.petName}</strong>
+            </div>
+
+            <div style={styles.statCard}>
+              <span style={styles.label}>Service</span>
+              <strong>{queueInfo.serviceName}</strong>
+            </div>
+
+            <div style={styles.statCard}>
+              <span style={styles.label}>Position</span>
+              <strong>
+                #{queueInfo.position} of {queueInfo.totalInQueue}
+              </strong>
+            </div>
+
+            <div style={styles.statCard}>
+              <span style={styles.label}>Estimated Wait</span>
+              <strong>{queueInfo.etaMinutes} min</strong>
+            </div>
+          </div>
+
           <div style={styles.grid}>
             <div style={styles.card}>
-              <h2 style={styles.cardTitle}>Current Queue</h2>
+              <h2 style={styles.cardTitle}>Current Queue Details</h2>
+
               <div style={styles.row}>
-                <span style={styles.label}>Pet</span>
-                <span style={styles.value}>{queueInfo.petName}</span>
+                <span style={styles.label}>Current Status</span>
+                <span style={styles.value}>{statusLabel}</span>
               </div>
+
               <div style={styles.row}>
-                <span style={styles.label}>Service</span>
-                <span style={styles.value}>{queueInfo.serviceName}</span>
-              </div>
-              <div style={styles.row}>
-                <span style={styles.label}>Position</span>
-                <span style={styles.value}>
-                  #{queueInfo.position} of {queueInfo.totalInQueue}
-                </span>
-              </div>
-              <div style={styles.row}>
-                <span style={styles.label}>Estimated Wait</span>
-                <span style={styles.value}>{queueInfo.etaMinutes} min</span>
+                <span style={styles.label}>Entry ID</span>
+                <span style={styles.value}>{queueInfo.entryId}</span>
               </div>
 
               <div style={{ marginTop: 14 }}>
                 <div style={styles.progressWrap}>
                   <div
-                    style={{ ...styles.progressBar, width: `${progress * 100}%` }}
+                    style={{
+                      ...styles.progressBar,
+                      width: `${progress * 100}%`,
+                    }}
                   />
                 </div>
+
                 <div style={styles.progressHint}>
-                  Updated:{" "}
-                  {queueInfo.lastUpdated instanceof Date
-                    ? queueInfo.lastUpdated.toLocaleTimeString()
-                    : new Date(queueInfo.lastUpdated).toLocaleTimeString()}
+                  Last updated: {queueInfo.lastUpdated.toLocaleTimeString()}
                 </div>
               </div>
 
@@ -210,6 +254,7 @@ export default function QueueStatus() {
                 <button style={styles.primaryBtn} onClick={refreshStatus}>
                   Refresh Status
                 </button>
+
                 <button style={styles.ghostBtn} onClick={leaveQueue}>
                   Leave Queue
                 </button>
@@ -219,7 +264,7 @@ export default function QueueStatus() {
             <div style={styles.card}>
               <h2 style={styles.cardTitle}>Notifications</h2>
               <p style={styles.cardText}>
-                In-app updates for queue changes and status changes.
+                Updates appear here when queue status changes.
               </p>
 
               <div style={styles.notifList}>
@@ -229,12 +274,10 @@ export default function QueueStatus() {
                   notifications.slice(0, 5).map((n) => (
                     <div key={n.id} style={styles.notifItem}>
                       <span style={styles.notifDot(n.type)} />
-                      <div style={{ flex: 1 }}>
+                      <div>
                         <div style={styles.notifText}>{n.text}</div>
                         <div style={styles.notifTime}>
-                          {n.time instanceof Date
-                            ? n.time.toLocaleTimeString()
-                            : new Date(n.time).toLocaleTimeString()}
+                          {n.time.toLocaleTimeString()}
                         </div>
                       </div>
                     </div>
@@ -242,31 +285,29 @@ export default function QueueStatus() {
                 )}
               </div>
 
-              <div style={{ marginTop: 10 }}>
-                <button
-                  style={styles.ghostBtn}
-                  onClick={() => setNotifications([])}
-                >
-                  Clear Notifications
-                </button>
-              </div>
+              <button
+                style={{ ...styles.ghostBtn, marginTop: 10 }}
+                onClick={() => setNotifications([])}
+              >
+                Clear Notifications
+              </button>
             </div>
           </div>
 
           <div style={styles.card}>
-            <h2 style={styles.cardTitle}>Status meanings</h2>
+            <h2 style={styles.cardTitle}>Status Meanings</h2>
             <ul style={styles.list}>
               <li>
-                <b>Waiting:</b> you’re in line.
+                <b>Waiting:</b> pet is still in line.
               </li>
               <li>
-                <b>Almost Ready:</b> please be nearby.
+                <b>Serving:</b> pet is currently being served.
               </li>
               <li>
-                <b>Served:</b> grooming started / your turn.
+                <b>Served:</b> service has been completed.
               </li>
               <li>
-                <b>Ready for Pickup:</b> grooming complete / pick up your pet.
+                <b>Removed:</b> pet was removed from the queue.
               </li>
             </ul>
           </div>
@@ -279,7 +320,7 @@ export default function QueueStatus() {
 const styles = {
   page: {
     padding: 20,
-    maxWidth: 980,
+    maxWidth: 1000,
     margin: "0 auto",
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto",
   },
@@ -300,8 +341,27 @@ const styles = {
     fontSize: 14,
     height: "fit-content",
   },
-
-  grid: { display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 16 },
+  summaryGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: 12,
+    marginBottom: 16,
+  },
+  statCard: {
+    background: "white",
+    border: "1px solid #e5e7eb",
+    borderRadius: 14,
+    padding: 14,
+    display: "flex",
+    flexDirection: "column",
+    gap: 6,
+    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "1.2fr 0.8fr",
+    gap: 16,
+  },
   card: {
     background: "white",
     border: "1px solid #e5e7eb",
@@ -311,12 +371,19 @@ const styles = {
     marginBottom: 16,
   },
   cardTitle: { margin: 0, fontSize: 18 },
-  cardText: { margin: "6px 0 0", color: "#4b5563", fontSize: 14 },
-
-  row: { display: "flex", justifyContent: "space-between", gap: 10, marginTop: 10 },
+  cardText: {
+    margin: "6px 0 12px",
+    color: "#4b5563",
+    fontSize: 14,
+  },
+  row: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 10,
+    marginTop: 10,
+  },
   label: { color: "#4b5563", fontSize: 14 },
   value: { fontWeight: 650, fontSize: 14, color: "#111827" },
-
   progressWrap: {
     width: "100%",
     height: 10,
@@ -324,10 +391,21 @@ const styles = {
     borderRadius: 999,
     overflow: "hidden",
   },
-  progressBar: { height: "100%", background: "#3b82f6" },
-  progressHint: { marginTop: 6, fontSize: 12, color: "#6b7280" },
-
-  actions: { display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" },
+  progressBar: {
+    height: "100%",
+    background: "#3b82f6",
+  },
+  progressHint: {
+    marginTop: 6,
+    fontSize: 12,
+    color: "#6b7280",
+  },
+  actions: {
+    display: "flex",
+    gap: 10,
+    marginTop: 14,
+    flexWrap: "wrap",
+  },
   primaryBtn: {
     background: "#111827",
     color: "white",
@@ -346,8 +424,12 @@ const styles = {
     cursor: "pointer",
     fontWeight: 650,
   },
-
-  notifList: { marginTop: 12, display: "flex", flexDirection: "column", gap: 10 },
+  notifList: {
+    marginTop: 12,
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+  },
   notifItem: {
     display: "flex",
     gap: 10,
@@ -370,8 +452,17 @@ const styles = {
         : "#3b82f6",
   }),
   notifText: { fontSize: 14, color: "#111827" },
-  notifTime: { fontSize: 12, color: "#6b7280", marginTop: 2 },
-  emptyNotif: { color: "#6b7280", fontSize: 14 },
-
-  list: { margin: "10px 0 0", color: "#374151" },
+  notifTime: {
+    fontSize: 12,
+    color: "#6b7280",
+    marginTop: 2,
+  },
+  emptyNotif: {
+    color: "#6b7280",
+    fontSize: 14,
+  },
+  list: {
+    margin: "10px 0 0",
+    color: "#374151",
+  },
 };
