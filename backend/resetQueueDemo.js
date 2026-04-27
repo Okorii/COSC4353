@@ -4,7 +4,7 @@ const pool = require("./db");
 
 async function resetQueue() {
   try {
-    await pool.query("USE queuesmart");
+    await pool.query(`USE \`${process.env.DB_NAME || "railway"}\``);
     await pool.query("DELETE FROM queue_entries");
 
     await pool.query(`
