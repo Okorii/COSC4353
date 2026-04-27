@@ -189,9 +189,26 @@ const queueLength = allappointments.length;
     setmessage("");
   };
  
-    const notifyReady = (appt) => {
-    setmessage(`Auto-notification ${appt.owner}: "${appt.pet} is ready to be seen."`);
-  };
+    const notifyReady = async (appt) => {
+  try {
+    const res = await fetch(
+      `http://localhost:3001/api/queue-management/${appt.id}/ready`,
+      { method: "PUT" }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setmessage(data.error || "Failed to mark ready.");
+      return;
+    }
+
+    setmessage(data.message);
+    loadQueue();
+  } catch {
+    setmessage("Server error.");
+  }
+};
 
 //custom message incase of emergencies or etc.
   const customMessage = (appt) => {

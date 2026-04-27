@@ -160,6 +160,50 @@ router.post("/serve-next", async (req, res) => {
 }
 });
 
+// PUT mark pet as ready for pickup.
+router.put("/:id/ready", async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT
+        entry_id AS id,
+        pet_name AS petName,
+        owner_name AS ownerName,
+        service_id AS serviceId,
+        joined_at AS joinedAt,
+        status
+      FROM queue_entries
+      WHERE entry_id = ?
+      `,
+      [req.params.id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Queue entry not found." });
+    }
+
+    await pool.query(
+      `
+      UPDATE queue_entries
+      SET status = 'SERVED'
+      WHERE entry_id = ?
+      `,
+      [req.params.id]
+    );
+
+    const ready = rows[0];
+    ready.status = "SERVED";
+
+    res.json({
+      message: `${ready.petName} is ready for pickup.`,
+      ready,
+    });
+  } catch (error) {
+    console.error("Ready route error:", error);
+    res.status(500).json({ error: "Failed to mark pet as ready." });
+  }
+});
+
 // DELETE remove from queue. Removes entry by ID.
 router.delete("/:id", async (req, res) => {
 
