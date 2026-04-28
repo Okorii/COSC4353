@@ -219,8 +219,8 @@ const prioritycolor = (priority) => ({
     <div style={{ //background
         minHeight: "100vh", 
         width: "100vw", 
-        background: "#24243a", 
-        color: "#ffffff", 
+        background: "#24243a",
+        color: "#ffffff",
         fontFamily: "system-ui, Arial", 
         padding: 20 ,
         boxSizing: "border-box",
@@ -412,7 +412,7 @@ const Servenextbutton = {
 const upanddownbutton = {
   ...basebuttonformat,
   border: "none",
-  background: "#3f3f46", 
+  background: "#3f3f46",
   color: "#ffffff",
 };
 
@@ -420,15 +420,15 @@ const upanddownbutton = {
 const readybutton = {
    ...basebuttonformat,
   border: "none",
-  background: "#36b13c", 
+  background: "#36b13c",
   color: "#ffffff",
 };
 
 //message button
-const messagebutton = { 
-    ...basebuttonformat, 
-    border: "none", 
-    background: "#3f3f46", 
+const messagebutton = {
+    ...basebuttonformat,
+    border: "none",
+    background: "#3f3f46",
     color: "#ffffff", };
 
 
