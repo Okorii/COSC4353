@@ -12,7 +12,7 @@ function normalizeService(service) {
 
 function normalizeQueueEntry(entry) {
   return {
-    id: entry.id,
+    id: entry.id ?? entry.entry_id,
     petName: entry.petName ?? entry.pet_name ?? "",
     ownerName: entry.ownerName ?? entry.owner_name ?? "",
     serviceId: entry.serviceId ?? entry.service_id ?? null,
@@ -133,6 +133,7 @@ export default function JoinQueue({ goToStatus }) {
         setMessage(data.error || "Failed to join queue.");
         return;
       }
+      localStorage.setItem("queueEntryId", data.id || data.entry_id);
 
       setMessage(
         `Joined ${selected?.serviceName || "the queue"}. Estimated wait: ${estWaitMinutes} minutes.`,

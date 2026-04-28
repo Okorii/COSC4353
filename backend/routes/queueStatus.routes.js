@@ -35,34 +35,36 @@ router.post("/", async (req, res) => {
   }
 });
 
-// GET QUEUE STATUS
-router.get("/:queueId", async (req, res) => {
+// GET one queue entry by ID
+router.get("/:id", async (req, res) => {
   try {
-    const { queueId } = req.params;
-
     const [rows] = await pool.query(
-      `SELECT
-         entry_id,
-         service_id AS queue_id,
-         pet_name AS user_id,
-         joined_at AS join_time,
-         status
-       FROM queue_entries
-       WHERE service_id = ?
-       ORDER BY joined_at ASC`,
-      [queueId]
+      `
+      SELECT
+        qe.entry_id AS id,
+        qe.pet_name AS petName,
+        qe.owner_name AS ownerName,
+        qe.service_id AS serviceId,
+        qe.joined_at AS joinedAt,
+        qe.status,
+        s.name AS serviceName,
+        s.duration_minutes AS expectedDuration,
+        s.priority
+      FROM queue_entries qe
+      JOIN services s ON qe.service_id = s.service_id
+      WHERE qe.entry_id = ?
+      `,
+      [req.params.id]
     );
 
-    const formattedRows = rows.map((row, index) => ({
-      ...row,
-      position: index + 1,
-      status: row.status.toLowerCase()
-    }));
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Queue entry not found." });
+    }
 
-    res.status(200).json(formattedRows);
-  } catch (err) {
-    console.error("Error fetching queue:", err);
-    res.status(500).json({ error: "Failed to fetch queue" });
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Queue status by ID error:", error);
+    res.status(500).json({ error: "Failed to fetch queue entry." });
   }
 });
 
