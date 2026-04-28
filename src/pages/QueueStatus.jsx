@@ -474,6 +474,7 @@ const styles = {
         : "#3b82f6",
   }),
   notifText: { fontSize: 14, color: "#111827" },
+<<<<<<< HEAD
   notifTime: {
     fontSize: 12,
     color: "#6b7280",
@@ -488,3 +489,10 @@ const styles = {
     color: "#374151",
   },
 };
+=======
+  notifTime: { fontSize: 12, color: "#6b7280", marginTop: 2 },
+  emptyNotif: { color: "#6b7280", fontSize: 14 },
+
+  list: { margin: "10px 0 0", color: "#374151" },
+};
+>>>>>>> caa73df8293832b78ef972684fb580ea7f2c9cdd

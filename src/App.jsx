@@ -5,60 +5,106 @@ import QueueStatus from "./pages/QueueStatus.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import JoinQueue from "./pages/JoinQueue.jsx";
 import History from "./pages/History.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import RegistrationPage from "./pages/RegistrationPage.jsx";
+import UserDashboardPage from "./pages/UserDashboardPage.jsx";
 import Reporting from "./pages/Reporting.jsx";
 
 export default function App() {
-  const [page, setPage] = useState("queue");
+  const [page, setPage] = useState("login");
+  const showTopTabs = page !== "login" && page !== "register";
 
   return (
     <div style={appShell}>
-      <div style={topTabs}>
-        <button style={tabBtn(page === "queue")} onClick={() => setPage("queue")}>
-          Queue Management
-        </button>
-
-        <button style={tabBtn(page === "service")} onClick={() => setPage("service")}>
-          Service Management
-        </button>
-
-        <button style={tabBtn(page === "status")} onClick={() => setPage("status")}>
-          Queue Status
-        </button>
-
-        <button style={tabBtn(page === "admin")} onClick={() => setPage("admin")}>
-          Admin Dashboard
-        </button>
-
-        <button style={tabBtn(page === "join")} onClick={() => setPage("join")}>
-          Join Queue
-        </button>
-        <button style={tabBtn(page === "history")} onClick={() => setPage("history")}>
-          History
-        </button>
-        <button style={tabBtn(page === "reporting")} onClick={() => setPage("reporting")}>
-        Reporting
-        </button>
-      </div>
+      {showTopTabs ? (
+        <div style={topTabs}>
+          <button
+            style={tabBtn(page === "user-dashboard")}
+            onClick={() => setPage("user-dashboard")}
+          >
+            User Dashboard
+          </button>
+          <button
+            style={tabBtn(page === "queue")}
+            onClick={() => setPage("queue")}
+          >
+            Queue Management
+          </button>
+          <button
+            style={tabBtn(page === "service")}
+            onClick={() => setPage("service")}
+          >
+            Service Management
+          </button>
+          <button
+            style={tabBtn(page === "status")}
+            onClick={() => setPage("status")}
+          >
+            Queue Status
+          </button>
+          <button
+            style={tabBtn(page === "admin")}
+            onClick={() => setPage("admin")}
+          >
+            Admin Dashboard
+          </button>
+          <button
+            style={tabBtn(page === "join")}
+            onClick={() => setPage("join")}
+          >
+            Join Queue
+          </button>
+          <button
+            style={tabBtn(page === "history")}
+            onClick={() => setPage("history")}
+          >
+            History
+          </button>
+          <button
+            style={tabBtn(page === "reporting")}
+            onClick={() => setPage("reporting")}
+          >
+            Reporting
+          </button>
+        </div>
+      ) : null}
 
       <div style={pageWrap}>
-        {page === "queue" && <QueueManagement />}
-        {page === "service" && <ServiceManagement />}
-        {page === "status" && <QueueStatus />}
-        {page === "admin" && (
-          <AdminDashboard 
+        {page === "queue" ? (
+          <QueueManagement />
+        ) : page === "service" ? (
+          <ServiceManagement />
+        ) : page === "status" ? (
+          <QueueStatus />
+        ) : page === "admin" ? (
+          <AdminDashboard
             goToQueue={() => setPage("queue")}
             goToServices={() => setPage("service")}
           />
+        ) : page === "join" ? (
+          <JoinQueue goToStatus={() => setPage("status")} />
+        ) : page === "login" ? (
+          <LoginPage
+            goToRegister={() => setPage("register")}
+            goToDashboard={() => setPage("user-dashboard")}
+          />
+        ) : page === "register" ? (
+          <RegistrationPage goToLogin={() => setPage("login")} />
+        ) : page === "user-dashboard" ? (
+          <UserDashboardPage
+            goToLogin={() => setPage("login")}
+            goToJoinQueue={() => setPage("join")}
+          />
+        ) : page === "reporting" ? (
+          <Reporting />
+        ) : (
+          <History />
         )}
-        {page === "join" && <JoinQueue goToStatus={() => setPage("status")} />}
-        {page === "history" && <History />}
-        {page === "reporting" && <Reporting />}
       </div>
     </div>
   );
 }
 
-// background
 const appShell = {
   minHeight: "100vh",
   width: "100%",
@@ -75,7 +121,6 @@ const pageWrap = {
   width: "100%",
 };
 
-
 const tabBtn = (active) => ({
   padding: "8px 12px",
   borderRadius: 8,
@@ -85,6 +130,3 @@ const tabBtn = (active) => ({
   cursor: "pointer",
   fontWeight: 500,
 });
-
-
-

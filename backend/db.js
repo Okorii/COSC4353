@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const mysql = require("mysql2/promise");
 
 const pool = mysql.createPool({
@@ -11,3 +12,6 @@ const pool = mysql.createPool({
 });
 
 module.exports = pool;
+=======
+module.exports = require("./config/db");
+>>>>>>> caa73df8293832b78ef972684fb580ea7f2c9cdd
