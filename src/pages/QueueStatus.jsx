@@ -18,14 +18,25 @@ export default function QueueStatus() {
     try {
       const res = await fetch("http://localhost:3001/api/queue-management");
       const data = await res.json();
-
+  
       if (!res.ok) {
         console.error("Failed response:", data);
         return;
       }
-
-      const entry = data[0];
-
+  
+      const savedEntry = JSON.parse(localStorage.getItem("currentQueueEntry"));
+      
+  
+      let entry = null;
+  
+      if (savedEntry) {
+        entry = data.find(
+          (e) => Number(e.id) === Number(savedEntry.id || savedEntry.entry_id)
+        );
+      }
+  
+      // fallback (if nothing saved yet)
+      
       if (!entry) {
         setQueueInfo({
           entryId: null,
@@ -39,24 +50,43 @@ export default function QueueStatus() {
         });
         return;
       }
-
+  
+      const index = data.findIndex(
+        (e) => Number(e.id) === Number(entry.id || entry.entry_id)
+      );
+      
       setQueueInfo({
-        entryId: entry.id,
-        serviceName: `Service ${entry.serviceId}`,
-        petName: entry.petName,
-        position: 1,
+        entryId: entry.id || entry.entry_id,
+        serviceName:
+          entry.serviceName ||
+          entry.service_name ||
+          `Service ${entry.serviceId || entry.service_id}`,
+        petName: entry.petName || entry.pet_name,
+        position: index >= 0 ? index + 1 : 0,
         totalInQueue: data.length,
-        etaMinutes: entry.estimatedWaitTime || 0,
-        status: entry.status,
+        etaMinutes: entry.estimatedWaitTime || entry.estimated_wait_time || 0,
+        status: entry.status || "WAITING",
         lastUpdated: new Date(),
       });
-
       if (showNotification) {
+        let message = "You’re in the queue. We’ll notify you when you’re almost ready.";
+        let type = "info";
+      
+        if (index === 1) {
+          message = "You’re next in line. Please be near the store.";
+          type = "warning";
+        }
+      
+        if (index === 0) {
+          message = "It’s your turn! Grooming started. We’ll notify you when your pet is ready for pickup.";
+          type = "success";
+        }
+      
         setNotifications((prev) => [
           {
             id: Date.now(),
-            type: "success",
-            text: "Queue status refreshed.",
+            type,
+            text: message,
             time: new Date(),
           },
           ...prev,
@@ -66,7 +96,6 @@ export default function QueueStatus() {
       console.error("Failed to load queue status", error);
     }
   }
-
   useEffect(() => {
     loadQueueStatus();
   }, []);
@@ -200,24 +229,24 @@ export default function QueueStatus() {
           <div style={styles.summaryGrid}>
             <div style={styles.statCard}>
               <span style={styles.label}>Pet</span>
-              <strong>{queueInfo.petName}</strong>
+              <span style={styles.value}>{queueInfo.petName || "N/A"}</span>
             </div>
 
             <div style={styles.statCard}>
               <span style={styles.label}>Service</span>
-              <strong>{queueInfo.serviceName}</strong>
+              <span style={styles.value}>{queueInfo.serviceName || "N/A"}</span>
             </div>
 
             <div style={styles.statCard}>
               <span style={styles.label}>Position</span>
-              <strong>
-                #{queueInfo.position} of {queueInfo.totalInQueue}
-              </strong>
+              <span style={styles.value}>
+                #{queueInfo.position || 0} of {queueInfo.totalInQueue || 0}
+              </span>
             </div>
 
             <div style={styles.statCard}>
               <span style={styles.label}>Estimated Wait</span>
-              <strong>{queueInfo.etaMinutes} min</strong>
+              <span style={styles.value}>{queueInfo.etaMinutes || 0} min</span>
             </div>
           </div>
 
@@ -297,18 +326,11 @@ export default function QueueStatus() {
           <div style={styles.card}>
             <h2 style={styles.cardTitle}>Status Meanings</h2>
             <ul style={styles.list}>
-              <li>
-                <b>Waiting:</b> pet is still in line.
-              </li>
-              <li>
-                <b>Serving:</b> pet is currently being served.
-              </li>
-              <li>
-                <b>Served:</b> service has been completed.
-              </li>
-              <li>
-                <b>Removed:</b> pet was removed from the queue.
-              </li>
+            <li><b>Waiting:</b> you’re in line.</li>
+            <li><b>Almost Ready:</b> please be nearby.</li>
+            <li><b>Served:</b> grooming started / your turn.</li>
+            <li><b>Ready for Pickup:</b> grooming complete / pick up your pet.</li>
+              
             </ul>
           </div>
         </>

@@ -71,12 +71,18 @@ export default function JoinQueue({ goToStatus }) {
           setMessage(data.error);
           return;
         }
-
+      
+        // ✅ THIS IS THE FIX
+        localStorage.setItem("currentQueueEntry", JSON.stringify(data));
+      
+        console.log("Saved to localStorage:", data);
+      
         setMessage(
           `Joined ${selected?.service_name}. Estimated wait: ${estWaitMinutes} minutes.`
         );
-
+      
         return fetch("http://localhost:3001/api/queue-management")
+      
           .then((res) => res.json())
           .then((updatedQueue) => setQueue(updatedQueue));
       })
