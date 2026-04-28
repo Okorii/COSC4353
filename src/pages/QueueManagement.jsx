@@ -97,7 +97,7 @@ const allappointments = useMemo(() => {
 }
 
   // order by time
-  return [...list].sort((x, y) => x.start.localeCompare(y.start));
+  return list;
 }, [appointments, selectedServiceId]);
 
 
@@ -172,22 +172,6 @@ const queueLength = allappointments.length;
     setmessage("Server error.");
   }
 };
-
-  //go back a date
-  const prevDay = () => {
-    const d = new Date(selectdate);
-    d.setDate(d.getDate() - 1);
-    setdate(d);
-    setmessage("");
-  };
-
-  //go fwd a date
-  const nextDay = () => {
-    const d = new Date(selectdate);
-    d.setDate(d.getDate() + 1);
-    setdate(d);
-    setmessage("");
-  };
  
     const notifyReady = async (appt) => {
   try {
@@ -262,10 +246,8 @@ const prioritycolor = (priority) => ({
             {/*title info*/}
           <div>
             <div style={{ fontSize: 16, opacity: 0.85, letterSpacing: 0.6 }}>Appointments</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
-              <button onClick={prevDay} style={arrowbuttons}>←</button>
-              <div style={{ fontWeight: 700 }}>{Dateformat(selectdate)}</div>
-              <button onClick={nextDay} style={arrowbuttons}>→</button>
+            <div style={{ marginTop: 6, fontWeight: 700 }}>
+              {Dateformat(selectdate)}
             </div>
           </div>
           
@@ -413,17 +395,6 @@ const basebuttonformat = {
   lineHeight: "32px",
   cursor: "pointer",
   boxShadow: "0 1px 0 rgba(0,0,0,0.08)",
-};
-
-//left and right arrows
-const arrowbuttons = {
-  padding: "6px 10px",
-  borderRadius: 10,
-  border: "1px solid rgba(0,0,0,0.25)",
-  background: "#ffffff",
-  color: "#000000",
-  cursor: "pointer",
-  fontWeight: 800,
 };
 
 //serve next button

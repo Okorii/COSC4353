@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
       params.push(Number(serviceId));
     }
 
-    sql += " ORDER BY date DESC";
+    sql += " ORDER BY date DESC, history_id DESC";
 
     const [rows] = await pool.query(sql, params);
     res.json(rows);

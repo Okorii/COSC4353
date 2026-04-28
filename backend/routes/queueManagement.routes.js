@@ -17,6 +17,7 @@ router.get("/", async (req, res) => {
         qe.pet_name AS petName,
         qe.owner_name AS ownerName,
         qe.service_id AS serviceId,
+        qe.groomer_id AS groomerId,
         qe.joined_at AS joinedAt,
         qe.status,
         s.priority
@@ -40,7 +41,7 @@ router.get("/", async (req, res) => {
 
 // POST join queue. adds new pet to queue.
 router.post("/join", async (req, res) => {
-  const { petName, ownerName, serviceId } = req.body;
+  const { petName, ownerName, serviceId , groomerId} = req.body;
 
     if (!petName) {
       return res.status(400).json({ error: "Pet Name is required" });
@@ -58,10 +59,10 @@ router.post("/join", async (req, res) => {
 
   const [result] = await pool.query(
     `
-    INSERT INTO queue_entries (pet_name, owner_name, service_id, joined_at, status)
-    VALUES (?, ?, ?, NOW(), 'WAITING')
+    INSERT INTO queue_entries (pet_name, owner_name, service_id, groomer_id, joined_at, status)
+    VALUES (?, ?, ?, ?, NOW(), 'WAITING')
     `,
-    [petName, ownerName, serviceId]
+    [petName, ownerName, serviceId, groomerId || "g1"]
   );
 
   const [rows] = await pool.query(
@@ -71,6 +72,7 @@ router.post("/join", async (req, res) => {
       qe.pet_name AS petName,
       qe.owner_name AS ownerName,
       qe.service_id AS serviceId,
+      qe.groomer_id AS groomerId,
       qe.joined_at AS joinedAt,
       qe.status,
       s.priority
@@ -170,6 +172,7 @@ router.put("/:id/ready", async (req, res) => {
         pet_name AS petName,
         owner_name AS ownerName,
         service_id AS serviceId,
+        groomer_id AS groomerId,
         joined_at AS joinedAt,
         status
       FROM queue_entries
@@ -193,6 +196,20 @@ router.put("/:id/ready", async (req, res) => {
 
     const ready = rows[0];
     ready.status = "SERVED";
+
+    // insert into history
+    await pool.query(
+      `
+      INSERT INTO history (pet_name, service_id, outcome, date)
+      VALUES (?, ?, ?, CURDATE())
+      `,
+      [
+        ready.petName,
+        ready.serviceId,
+        "completed",
+      ]
+    );
+
 
     res.json({
       message: `${ready.petName} is ready for pickup.`,
@@ -240,8 +257,21 @@ router.delete("/:id", async (req, res) => {
   );
 
   removed.status = "REMOVED";
+  await pool.query(
+  `
+  INSERT INTO history (pet_name, service_id, outcome, date)
+  VALUES (?, ?, ?, CURDATE())
+  `,
+  [
+    removed.petName,
+    removed.serviceId,
+    "removed",
+  ]
+);
+
 
   res.json({ message: "Removed from queue", removed });
+
 } catch (error) {
   console.error(error);
   res.status(500).json({ error: "Failed to remove queue entry." });

@@ -1,19 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 
-// services
+//services
 const services = [
   { id: "all", name: "Services", minutes: 0 },
   { id: 1, name: "Nail trimming", minutes: 10 },
   { id: 2, name: "Haircut", minutes: 30 },
   { id: 3, name: "Full Groom (Bath + Haircut + Nails)", minutes: 60 },
   { id: 4, name: "Bath + Dry", minutes: 35 },
-];
-
-// groomers
-const groomers = [
-  { id: "g1", name: "Lilly Rose" },
-  { id: "g2", name: "Julian Rangel" },
-  { id: "g3", name: "Ariana Nazario" },
 ];
 
 export default function History() {
@@ -42,12 +35,6 @@ export default function History() {
   const serviceById = useMemo(() => {
     const map = new Map();
     services.forEach((s) => map.set(s.id, s));
-    return map;
-  }, []);
-
-  const groomerById = useMemo(() => {
-    const map = new Map();
-    groomers.forEach((g) => map.set(g.id, g));
     return map;
   }, []);
 
@@ -161,7 +148,6 @@ export default function History() {
                 <tr style={{ textAlign: "left", fontSize: 12, letterSpacing: 0.7, opacity: 0.8 }}>
                   <th style={th}>DATE</th>
                   <th style={th}>PET</th>
-                  <th style={th}>GROOMER</th>
                   <th style={th}>SERVICE</th>
                   <th style={th}>OUTCOME</th>
                 </tr>
@@ -170,14 +156,13 @@ export default function History() {
               <tbody>
                 {filteredHistory.length === 0 ? (
                   <tr>
-                    <td colSpan={5} style={{ padding: 16, opacity: 0.8 }}>
+                    <td colSpan={4} style={{ padding: 16, opacity: 0.8 }}>
                       No history yet.
                     </td>
                   </tr>
                 ) : (
                   filteredHistory.map((h) => {
                     const svc = serviceById.get(h.serviceId);
-                    const g = groomerById.get(h.groomerId);
 
                     const dateText = new Date(h.date).toLocaleDateString(undefined, {
                       month: "short",
@@ -189,7 +174,6 @@ export default function History() {
                       <tr key={h.id} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                         <td style={td}>{dateText}</td>
                         <td style={td}>{h.pet}</td>
-                        <td style={td}>{g?.name ?? "Groomer"}</td>
                         <td style={td}>{svc?.name ?? "Service"}</td>
                         <td style={td}>{formatOutcome(h.outcome)}</td>
                       </tr>

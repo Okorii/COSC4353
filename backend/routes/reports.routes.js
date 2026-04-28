@@ -32,9 +32,17 @@ router.get("/summary", async (req, res) => {
       `
       SELECT
         COUNT(*) AS total_queue_entries,
-        SUM(CASE WHEN status = 'SERVING' THEN 1 ELSE 0 END) AS users_served,
+        (
+        SELECT COUNT(*)
+        FROM history
+        WHERE outcome = 'completed'
+        ) AS users_served,
         SUM(CASE WHEN status = 'WAITING' THEN 1 ELSE 0 END) AS currently_waiting,
-        SUM(CASE WHEN status = 'REMOVED' THEN 1 ELSE 0 END) AS users_removed
+        (
+          SELECT COUNT(*)
+          FROM history
+          WHERE outcome = 'removed'
+        )  AS users_removed
       FROM queue_entries qe
       ${whereClause}
       `,
@@ -62,13 +70,12 @@ router.get("/summary", async (req, res) => {
         h.history_id AS id,
         h.date,
         h.pet_name,
-        h.groomer_id,
         h.service_id,
         s.name AS service_name,
         h.outcome
       FROM history h
       LEFT JOIN services s ON h.service_id = s.service_id
-      ORDER BY h.date DESC
+      ORDER BY h.date DESC, h.history_id DESC
       LIMIT 50
       `
     );
