@@ -26,7 +26,7 @@ describe("Service Management API", () => {
 
   test("POST /api/services should create a valid service", async () => {
     const newService = {
-      service_name: "Teeth Cleaning",
+      service_name: `Teeth Cleaning ${Date.now()}`,
       description: "Basic teeth cleaning service",
       expected_duration: 20
     };
@@ -88,36 +88,40 @@ describe("Service Management API", () => {
     expect(res.body).toHaveProperty("expected_duration");
   });
 
-  test("PUT /api/services/:id should update an existing service", async () => {
-    const createRes = await request.post("/api/services").send({
-      service_name: "Temp Service",
-      description: "Temp description",
-      expected_duration: 25
-    });
+ test("PUT /api/services/:id should update an existing service", async () => {
+  const tempName = `Temp Service ${Date.now()}`;
+  const updatedName = `Updated Haircut ${Date.now()}`;
 
-    const serviceId = createRes.body.service_id;
-
-    const updatedService = {
-      service_name: "Updated Haircut",
-      description: "Updated haircut description",
-      expected_duration: 40
-    };
-
-    const res = await request.put(`/api/services/${serviceId}`).send(updatedService);
-
-    expect(res.status).toBe(200);
-    expect(res.body.message).toBe("Service updated successfully");
-
-    const getRes = await request.get(`/api/services/${serviceId}`);
-    expect(getRes.status).toBe(200);
-    expect(getRes.body.service_name).toBe("Updated Haircut");
-    expect(getRes.body.description).toBe("Updated haircut description");
-    expect(getRes.body.expected_duration).toBe(40);
+  const createRes = await request.post("/api/services").send({
+    service_name: tempName,
+    description: "Temp description",
+    expected_duration: 25
   });
+
+  const serviceId = createRes.body.service_id;
+
+  const updatedService = {
+    service_name: updatedName,
+    description: "Updated haircut description",
+    expected_duration: 40
+  };
+
+  const res = await request.put(`/api/services/${serviceId}`).send(updatedService);
+
+  expect(res.status).toBe(200);
+  expect(res.body.message).toBe("Service updated successfully");
+
+  const getRes = await request.get(`/api/services/${serviceId}`);
+  expect(getRes.status).toBe(200);
+  expect(getRes.body.service_name).toBe(updatedName);
+  expect(getRes.body.description).toBe("Updated haircut description");
+  expect(getRes.body.expected_duration).toBe(40);
+});
+ 
 
   test("DELETE /api/services/:id should remove a service that is not referenced by a queue", async () => {
     const createRes = await request.post("/api/services").send({
-      service_name: "Delete Me",
+      service_name: `Delete Me ${Date.now()}`,
       description: "Temporary service",
       expected_duration: 10
     });
