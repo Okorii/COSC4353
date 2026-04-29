@@ -95,49 +95,6 @@ export default function JoinQueue({ goToStatus }) {
     return "";
   }
 
-<<<<<<< HEAD
-  function joining() {
-    setMessage("");
-    const err = validate();
-    if (err) return setMessage(err);
-
-    fetch("http://localhost:3001/api/queue-management/join", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        petName: petName,
-        ownerName: ownerName,
-        serviceId: Number(serviceId),
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.error) {
-          setMessage(data.error);
-          return;
-        }
-      
-        // ✅ THIS IS THE FIX
-        localStorage.setItem("currentQueueEntry", JSON.stringify(data));
-      
-        console.log("Saved to localStorage:", data);
-      
-        setMessage(
-          `Joined ${selected?.service_name}. Estimated wait: ${estWaitMinutes} minutes.`
-        );
-      
-        return fetch("http://localhost:3001/api/queue-management")
-      
-          .then((res) => res.json())
-          .then((updatedQueue) => setQueue(updatedQueue));
-      })
-      .catch((err) => {
-        console.error("Error joining queue:", err);
-        setMessage("Failed to join queue.");
-      });
-=======
   async function reloadQueue() {
     try {
       const response = await fetch(apiUrl("/api/queue-management"));
@@ -146,7 +103,6 @@ export default function JoinQueue({ goToStatus }) {
     } catch (error) {
       console.error("Error reloading queue:", error);
     }
->>>>>>> caa73df8293832b78ef972684fb580ea7f2c9cdd
   }
 
   async function joining() {
