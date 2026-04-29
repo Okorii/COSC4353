@@ -22,7 +22,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/services", servicesRoutes);
-app.use("/api/queue-entries", queueStatusRoutes);
+app.use("/api/queue-status", queueStatusRoutes);
+app.use("/api/queue-entries", queueStatusRoutes); 
 app.use("/api/queue-management", queueManagementRoutes);
 app.use("/api/history", historyRoutes);
 app.use("/api/auth", authRoutes);

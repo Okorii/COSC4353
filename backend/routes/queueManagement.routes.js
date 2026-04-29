@@ -276,30 +276,4 @@ router.delete("/:id", async (req, res) => {
   res.status(500).json({ error: "Failed to remove queue entry." });
 }
 });
-<<<<<<< HEAD
-// MARK SERVICE COMPLETE / READY FOR PICKUP
-router.post("/complete/:id", async (req, res) => {
-  try {
-    const [result] = await pool.query(
-      `
-      UPDATE queue_entries
-      SET status = 'SERVED'
-      WHERE entry_id = ?
-      `,
-      [req.params.id]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Queue entry not found" });
-    }
-
-    res.json({ message: "Marked as ready for pickup" });
-  } catch (error) {
-    console.error("Error completing service:", error);
-    res.status(500).json({ error: "Failed to complete service." });
-  }
-});
 module.exports = router;
-=======
-module.exports = router;
->>>>>>> caa73df8293832b78ef972684fb580ea7f2c9cdd
