@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS queuesmart;
-USE queuesmart;
+CREATE DATABASE IF NOT EXISTS railway;
+USE railway;
 
 CREATE TABLE IF NOT EXISTS services (
   service_id INT AUTO_INCREMENT PRIMARY KEY,

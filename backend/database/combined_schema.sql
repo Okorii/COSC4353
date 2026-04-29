@@ -57,7 +57,7 @@ CREATE TABLE history (
     history_id INT AUTO_INCREMENT PRIMARY KEY,
     date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     pet_name VARCHAR(30) NOT NULL,
-    groomer_id INT NULL,
+    owner_name VARCHAR(100),
     service_id INT NOT NULL,
     outcome VARCHAR(100) NOT NULL,
     FOREIGN KEY (service_id) REFERENCES services(service_id)
@@ -79,8 +79,8 @@ VALUES
 ('Luna', 'billy@email.com', 3, NOW(), 'WAITING'),
 ('Chucho', 'manuel@email.com', 4, NOW(), 'WAITING');
 
-INSERT INTO history (date, pet_name, groomer_id, service_id, outcome)
+INSERT INTO history (date, pet_name, owner_name, service_id, outcome)
 VALUES
-(NOW(), 'Bella', 1, 2, 'Completed'),
-(NOW(), 'Charlie', 2, 1, 'Completed'),
-(NOW(), 'Milo', 1, 4, 'Picked Up');
+(NOW(), 'Bella', 'sofia@email.com', 2, 'completed'),
+(NOW(), 'Charlie', 'charlie@email.com', 1, 'completed'),
+(NOW(), 'Milo', 'ana@email.com', 4, 'removed');
