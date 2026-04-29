@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS queue_entries (
   pet_name VARCHAR(100) NOT NULL,
   owner_name VARCHAR(100) NOT NULL,
   service_id INT NOT NULL,
+  groomer_id VARCHAR(20),
   joined_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   status ENUM('WAITING', 'SERVING', 'REMOVED', 'SERVED') NOT NULL DEFAULT 'WAITING',
   FOREIGN KEY (service_id) REFERENCES services(service_id)
@@ -46,20 +47,20 @@ ON DUPLICATE KEY UPDATE
 
 DELETE FROM queue_entries;
 
-INSERT INTO queue_entries (pet_name, owner_name, service_id, joined_at, status)
+INSERT INTO queue_entries (pet_name, owner_name, service_id, groomer_id, joined_at, status)
 VALUES
-('Coco', 'Maria Garcia', 1, NOW(), 'WAITING'),
-('Rocky', 'Luis Perez', 2, NOW(), 'WAITING'),
-('Luna', 'Billy Jones', 3, NOW(), 'WAITING'),
-('Chucho', 'Manuel Avila', 4, NOW(), 'WAITING');
+('Coco', 'Maria Garcia', 1,'g1', NOW(), 'WAITING'),
+('Rocky', 'Luis Perez', 2,'g2', NOW(), 'WAITING'),
+('Luna', 'Billy Jones', 3,'g3', NOW(), 'WAITING'),
+('Chucho', 'Manuel Avila', 4,'g4', NOW(), 'WAITING');
 
 DELETE FROM history;
 INSERT INTO history (history_id, pet_name, groomer_id, service_id, outcome, date)
 VALUES
-(1, 'Kochi', 'g1', 3, 'completed', '2026-02-10'),
-(2, 'Cake', 'g2', 1, 'canceled', '2026-02-12'),
-(3, 'Sam', 'g3', 2, 'no show', '2026-02-18'),
-(4, 'Chucho', 'g1', 4, 'completed', '2026-02-19')
+(1, 'Kochi', 'g1', 3, 'completed', CURDATE()),
+(2, 'Cake', 'g2', 1, 'removed', CURDATE()),
+(3, 'Sam', 'g3', 2, 'removed', CURDATE()),
+(4, 'Chucho', 'g1', 4, 'completed', CURDATE())
 ON DUPLICATE KEY UPDATE
   pet_name = VALUES(pet_name),
   groomer_id = VALUES(groomer_id),

@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
 
 // POST join queue. adds new pet to queue.
 router.post("/join", async (req, res) => {
-  const { petName, ownerName, serviceId } = req.body;
+  const { petName, ownerName, serviceId} = req.body;
 
     if (!petName) {
       return res.status(400).json({ error: "Pet Name is required" });
@@ -194,6 +194,21 @@ router.put("/:id/ready", async (req, res) => {
     const ready = rows[0];
     ready.status = "SERVED";
 
+    // insert into history
+    await pool.query(
+      `
+      INSERT INTO history (pet_name, owner_name, service_id, outcome, date)
+      VALUES (?, ?, ?, ?, NOW())
+      `,
+      [
+        ready.petName,
+        ready.ownerName,
+        ready.serviceId,
+        "completed",
+      ]
+    );
+
+
     res.json({
       message: `${ready.petName} is ready for pickup.`,
       ready,
@@ -240,8 +255,22 @@ router.delete("/:id", async (req, res) => {
   );
 
   removed.status = "REMOVED";
+  await pool.query(
+  `
+  INSERT INTO history (pet_name, owner_name, service_id, outcome, date)
+  VALUES (?, ?, ?, ?, NOW())
+  `,
+  [
+    removed.petName,
+    removed.ownerName,
+    removed.serviceId,
+    "removed",
+  ]
+);
+
 
   res.json({ message: "Removed from queue", removed });
+
 } catch (error) {
   console.error(error);
   res.status(500).json({ error: "Failed to remove queue entry." });

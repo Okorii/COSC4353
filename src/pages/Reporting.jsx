@@ -1,12 +1,5 @@
 import { useEffect, useState } from "react";
 
-//groomer mapping - converts IDs to the actual names.
-const groomers = [
-  { id: "g1", name: "Lilly Rose" },
-  { id: "g2", name: "Julian Rangel" },
-  { id: "g3", name: "Ariana Nazario" },
-];
-
 //filtering options
 const services = [
   { id: "all", name: "All Services" },
@@ -15,10 +8,6 @@ const services = [
   { id: 3, name: "Full Groom (Bath + Haircut + Nails)" },
   { id: 4, name: "Bath + Dry" },
 ];
-
-//lookup map for groomer Ids to names
-const groomerById = new Map();
-groomers.forEach((g) => groomerById.set(g.id, g.name));
 
 export default function Reporting() {
   //stores report data from backend
@@ -101,7 +90,7 @@ export default function Reporting() {
               </div>
 
               <div style={card}>
-                <div style={cardLabel}>Users Served</div>
+                <div style={cardLabel}>Pets Served</div>
                 <div style={cardNumber}>{report.queueStats.users_served}</div>
               </div>
 
@@ -128,11 +117,10 @@ export default function Reporting() {
 
             <ReportTable
               title="Recent Queue History"
-              columns={["Date", "Pet", "Groomer", "Service", "Outcome"]}
+              columns={["Date", "Pet", "Service", "Outcome"]}
               rows={report.recentHistory.map((h) => [
                 new Date(h.date).toLocaleDateString(),
                 h.pet_name,
-                groomerById.get(h.groomer_id) || h.groomer_id,
                 h.service_name,
                 h.outcome,
               ])}
