@@ -9,7 +9,9 @@ const services = [
   { id: 4, name: "Bath + Dry", minutes: 35 },
 ];
 
+
 export default function History() {
+  const ownerName = localStorage.getItem("ownerName");
   const [selectedServiceId, setSelectedServiceId] = useState("all");
 
   // history
@@ -20,16 +22,28 @@ export default function History() {
 
   // history data from backend API
   useEffect(() => {
-    const url =
-      selectedServiceId === "all"
-        ? "http://localhost:3001/api/history"
-        : `http://localhost:3001/api/history?serviceId=${selectedServiceId}`;
+  if (!ownerName) {
+    setHistoryList([]);
+    setmessage("No user found. Please join the queue first.");
+    return;
+  }
 
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => setHistoryList(data))
-      .catch(() => setmessage("Failed to load history."));
-  }, [selectedServiceId]);
+  const url =
+    selectedServiceId === "all"
+      ? `http://localhost:3001/api/history?ownerName=${encodeURIComponent(ownerName)}`
+      : `http://localhost:3001/api/history?ownerName=${encodeURIComponent(ownerName)}&serviceId=${selectedServiceId}`;
+
+  fetch(url)
+    .then((res) => res.json())
+    .then((data) => {
+      setHistoryList(data);
+      setmessage("");
+    })
+    .catch(() => setmessage("Failed to load history."));
+}, [selectedServiceId, ownerName]);
+
+
+
 
   // service lookup
   const serviceById = useMemo(() => {

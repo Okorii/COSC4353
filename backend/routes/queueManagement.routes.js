@@ -197,11 +197,12 @@ router.put("/:id/ready", async (req, res) => {
     // insert into history
     await pool.query(
       `
-      INSERT INTO history (pet_name, service_id, outcome, date)
-      VALUES (?, ?, ?, NOW())
+      INSERT INTO history (pet_name, owner_name, service_id, outcome, date)
+      VALUES (?, ?, ?, ?, NOW())
       `,
       [
         ready.petName,
+        ready.ownerName,
         ready.serviceId,
         "completed",
       ]
@@ -256,11 +257,12 @@ router.delete("/:id", async (req, res) => {
   removed.status = "REMOVED";
   await pool.query(
   `
-  INSERT INTO history (pet_name, service_id, outcome, date)
-  VALUES (?, ?, ?, NOW())
+  INSERT INTO history (pet_name, owner_name, service_id, outcome, date)
+  VALUES (?, ?, ?, ?, NOW())
   `,
   [
     removed.petName,
+    removed.ownerName,
     removed.serviceId,
     "removed",
   ]

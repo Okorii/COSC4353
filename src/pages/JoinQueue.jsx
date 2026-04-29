@@ -134,6 +134,7 @@ export default function JoinQueue({ goToStatus }) {
         return;
       }
       localStorage.setItem("queueEntryId", data.id || data.entry_id);
+      localStorage.setItem("ownerName", ownerName.trim());
 
       setMessage(
         `Joined ${selected?.serviceName || "the queue"}. Estimated wait: ${estWaitMinutes} minutes.`,

@@ -5,13 +5,22 @@ const pool = require("../db");
 // admin reporting summary
 router.get("/summary", async (req, res) => {
   try {
-    const [queueStats] = await pool.query(`
-      SELECT
-        (SELECT COUNT(*) FROM history) AS total_queue_entries,
-        (SELECT COUNT(*) FROM history WHERE outcome = 'completed') AS users_served,
-        (SELECT COUNT(*) FROM queue_entries WHERE status = 'WAITING') AS currently_waiting,
-        (SELECT COUNT(*) FROM history WHERE outcome = 'removed') AS users_removed
-    `);
+  const { serviceId } = req.query;
+  const serviceFilter = serviceId && serviceId !== "all";
+
+  const historyWhere = serviceFilter ? "WHERE service_id = ?" : "";
+  const queueWhere = serviceFilter ? "WHERE service_id = ?" : "";
+
+  const [queueStats] = await pool.query(
+  `
+  SELECT
+    (SELECT COUNT(*) FROM history ${historyWhere}) AS total_queue_entries,
+    (SELECT COUNT(*) FROM history ${serviceFilter ? "WHERE service_id = ? AND" : "WHERE"} outcome = 'completed') AS users_served,
+    (SELECT COUNT(*) FROM queue_entries ${serviceFilter ? "WHERE service_id = ? AND" : "WHERE"} status = 'WAITING') AS currently_waiting,
+    (SELECT COUNT(*) FROM history ${serviceFilter ? "WHERE service_id = ? AND" : "WHERE"} outcome = 'removed') AS users_removed
+  `,
+  serviceFilter ? [serviceId, serviceId, serviceId, serviceId] : []
+);
 
     const [serviceActivity] = await pool.query(`
       SELECT
@@ -20,9 +29,12 @@ router.get("/summary", async (req, res) => {
         COUNT(qe.entry_id) AS queue_count
       FROM services s
       LEFT JOIN queue_entries qe ON s.service_id = qe.service_id
+      ${serviceFilter ? "WHERE s.service_id = ?" : ""}
       GROUP BY s.service_id, s.name
       ORDER BY queue_count DESC
-    `);
+      `,
+        serviceFilter ? [serviceId] : []
+    );
 
     const [historyRows] = await pool.query(`
       SELECT
@@ -34,9 +46,12 @@ router.get("/summary", async (req, res) => {
         h.outcome
       FROM history h
       LEFT JOIN services s ON h.service_id = s.service_id
+      ${serviceFilter ? "WHERE h.service_id = ?" : ""}
       ORDER BY h.date DESC, h.history_id DESC
       LIMIT 50
-    `);
+      `,
+  serviceFilter ? [serviceId] : []
+    );
 
     res.json({
       queueStats: queueStats[0],
