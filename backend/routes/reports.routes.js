@@ -26,9 +26,12 @@ router.get("/summary", async (req, res) => {
       SELECT
         s.service_id,
         s.name AS service_name,
-        COUNT(qe.entry_id) AS queue_count
+        (
+          SELECT COUNT(*)
+          FROM history h
+          WHERE h.service_id = s.service_id
+        ) AS queue_count
       FROM services s
-      LEFT JOIN queue_entries qe ON s.service_id = qe.service_id
       ${serviceFilter ? "WHERE s.service_id = ?" : ""}
       GROUP BY s.service_id, s.name
       ORDER BY queue_count DESC
