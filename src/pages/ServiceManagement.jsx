@@ -31,11 +31,13 @@ export default function ServiceManagement() {
         )
     );
   
-    const firstFiveServices = uniqueServices.filter(
-      (service) => Number(service.service_id) <= 5
+    const cleanedServices = uniqueServices.filter(
+      (service) =>
+        !/\d{6,}/.test(service.service_name) &&
+        service.service_name !== "Temp Service" &&
+        service.service_name !== "Updated Haircut"
     );
-  
-    return firstFiveServices.map((service) => ({
+    return cleanedServices.map((service) => ({
       id: service.service_id,
       name: service.service_name,
       description: service.description || "",
