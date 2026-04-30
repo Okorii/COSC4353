@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function AdminDashboard({goToServices, goToQueue}){
+export default function AdminDashboard({goToServices, goToQueue, goToReports}){
   const [services, setServices] = useState([]);
   const [queueData, setQueue] = useState([]);
   
@@ -69,6 +69,33 @@ export default function AdminDashboard({goToServices, goToQueue}){
         <h1 style={styles.title}>Admin Dashboard</h1>
       </header>
 
+      {/*quickcard*/}
+      <div style={styles.quickCards}>
+        <button style={styles.quickCard} onClick={goToServices}>
+          <div style={styles.quickIcon}>
+            <img src="/service.png" alt="Service Management" style={styles.iconImg} />
+          </div>
+          <h2 style={styles.quickTitle}>Service Management</h2>
+          <p style={styles.quickText}>View and modify pet services →</p>
+        </button>
+
+        <button style={styles.quickCard} onClick={goToQueue}>
+          <div style={styles.quickIcon}>
+            <img src="/queue.png" alt="Queue Management" style={styles.iconImg} />
+          </div>
+          <h2 style={styles.quickTitle}>Queue Management</h2>
+          <p style={styles.quickText}>View and modify queues →</p>
+        </button>
+
+        <button style={styles.quickCard} onClick={goToReports}>
+          <div style={styles.quickIcon}>
+            <img src="/reports.png" alt="View Reports" style={styles.iconImg} />
+          </div>
+          <h2 style={styles.quickTitle}>View Reports</h2>
+          <p style={styles.quickText}>Review service trends →</p>
+        </button>
+      </div>
+
       {/*current service card*/}
       <div style={styles.card}>
         <h2 style={styles.cardTitle}>Current Services</h2>
@@ -100,21 +127,6 @@ export default function AdminDashboard({goToServices, goToQueue}){
           ))}
         </div>
       </div>
-
-      {/*queue and manage card codes*/}
-      <div style={styles.card}>
-        <h2 style={styles.cardTitle}>Need to manage a service or queue?</h2>
-
-        <div style={styles.btnRow}>
-          <button style={styles.statusBtn} onClick={goToQueue}>
-            Go to Queue Management →
-          </button>
-
-          <button style={styles.serviceBtn} onClick={goToServices}>
-            Go to Service Management →
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -138,7 +150,8 @@ const styles = {
 
     title:{
         margin: 0,
-        fontSize: 28
+        fontSize: 28,
+        color: "#194b06"
     },
 
     card:{
@@ -154,7 +167,7 @@ const styles = {
     cardTitle:{
         margin: "0",
         fontSize: 20,
-        fontWeight: 700
+        fontWeight: 700,
     },
 
     //service list cards text
@@ -223,27 +236,48 @@ const styles = {
       fontWeight: 700,
       fontSize: 12,
     },
-    //other page buttons code
-    btnRow:{
-      display: "flex",
-      gap: 10,
+
+    //three quick cards uptop for admin stuffs
+    quickCards: {
+      display: "grid",
+      gridTemplateColumns: "repeat(3, 1fr)",
+      gap: 18,
+      marginBottom: 22,
+      cursor: "pointer",
+    },
+
+    quickCard: {
+      background: "white",
+      border: "1px solid #e5e7eb",
+      borderRadius: 18,
+      padding: "36px 20px",
+      minHeight: 220,
+      textAlign: "center",
+      cursor: "pointer",
+      boxShadow: "0 2px 5px rgba(0,0,0,0.12)",
+    },
+
+    quickIcon: {
+      marginBottom: 18,
+    },
+
+    iconImg: {
+      width: 50,
+      height: 50,
+      objectFit: "contain",
+    },
+
+    quickTitle: {
+      margin: 0,
+      fontSize: 18,
+      color: "#000000",
+      fontWeight: 600,
+    },
+
+    quickText: {
       marginTop: 12,
-      flexWrap: "wrap",
-    },
-
-    statusBtn:{
-      padding: "10px 12px",
-      background: "#33339c",
-      color: "#fff",
-      cursor: "pointer",
-      fontWeight: 700,
-    },
-
-    serviceBtn:{
-      padding: "10px 12px",
-      background: "#61339c",
-      color: "#fff",
-      cursor: "pointer",
-      fontWeight: 700,
+      fontSize: 14,
+      color: "#7b818b",
+      lineHeight: 1.4,
     },
 };

@@ -81,6 +81,7 @@ export default function App() {
           <AdminDashboard
             goToQueue={() => setPage("queue")}
             goToServices={() => setPage("service")}
+            goToReports={() => setPage("reporting")}
           />
         ) : page === "join" ? (
           <JoinQueue goToStatus={() => setPage("status")} />
@@ -97,7 +98,8 @@ export default function App() {
             goToJoinQueue={() => setPage("join")}
           />
         ) : page === "reporting" ? (
-          <Reporting />
+          <Reporting 
+          />
         ) : (
           <History />
         )}
