@@ -101,7 +101,9 @@ export default function AdminDashboard({goToServices, goToQueue, goToReports}){
         <h2 style={styles.cardTitle}>Current Services</h2>
 
         <div style={styles.list}>
-          {uniqueServices.map((s) => (
+          {uniqueServices
+            .filter((s) => s.name !== "Updated Haircut" && s.name !== "Temp Service")
+            .map((s) => (
             <div key={s.service_id} style={styles.serviceRow}>
               <div style={{ flex: 1 }}>
                 <div style={styles.serviceName}>{s.name}</div>

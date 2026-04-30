@@ -9,6 +9,7 @@ function normalizeService(service) {
     serviceName: cleanedName,
     expectedDuration:
       Number(service.expected_duration ?? service.expectedDuration ?? service.durationMinutes) || 0,
+    active: service.active,
   };
 }
 
@@ -45,7 +46,18 @@ export default function JoinQueue({ goToStatus }) {
         const queueData = await queueResponse.json();
 
         const normalizedServices = Array.isArray(servicesData)
-          ? servicesData.map(normalizeService)
+          ? servicesData
+            .map(normalizeService)
+            .filter(
+              (service) =>
+                service.active == 1 &&
+                service.serviceName !== "Updated Haircut" &&
+                service.serviceName !== "Temp Service"
+            )
+            .filter(
+              (service, index, self) =>
+                index === self.findIndex((s) => s.serviceName === service.serviceName)
+            )
           : [];
 
         const normalizedQueue = Array.isArray(queueData)
@@ -231,9 +243,9 @@ export default function JoinQueue({ goToStatus }) {
             style={styles.input}
             value={serviceId}
             onChange={(event) => setServiceId(event.target.value)}
-            disabled={services.length === 0}
+            disabled={uniqueServices.length === 0}
           >
-            {services.length === 0 ? (
+            {uniqueServices.length === 0 ? (
               <option value="">No services available</option>
             ) : (
               uniqueServices.map((service) => (
