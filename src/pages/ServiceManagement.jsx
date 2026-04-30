@@ -30,8 +30,12 @@ export default function ServiceManagement() {
             service.service_name?.toLowerCase()
         )
     );
-
-    return uniqueServices.map((service) => ({
+  
+    const firstFiveServices = uniqueServices.filter(
+      (service) => Number(service.service_id) <= 5
+    );
+  
+    return firstFiveServices.map((service) => ({
       id: service.service_id,
       name: service.service_name,
       description: service.description || "",
