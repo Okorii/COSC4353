@@ -199,9 +199,7 @@ export default function ServiceManagement() {
           </p>
         </div>
 
-        <button style={styles.newServiceBtn} onClick={startCreate}>
-          + New Service
-        </button>
+
       </header>
 
       <div style={styles.card}>
