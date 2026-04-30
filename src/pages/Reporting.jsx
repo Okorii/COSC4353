@@ -108,11 +108,13 @@ export default function Reporting() {
             <ReportTable
               title="Service Activity"
               columns={["Service ID", "Service Name", "Queue Count"]}
-              rows={report.serviceActivity.map((s) => [
-                s.service_id,
-                s.service_name,
-                s.queue_count,
-              ])}
+              rows={report.serviceActivity
+                .filter((s) => Number(s.service_id) <= 5)
+                .map((s) => [
+                  s.service_id,
+                  s.service_name,
+                  s.queue_count,
+                ])}
             />
 
             <ReportTable
