@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { apiUrl } from "../lib/api.js";
 
 function normalizeService(service) {
+  const rawName = service.service_name ?? service.serviceName ?? service.name ?? "Unknown Service";
+  const cleanedName = rawName.replace(/\s+\d{6,}$/, "");
   return {
     serviceId: service.service_id ?? service.serviceId ?? service.id,
-    serviceName: service.service_name ?? service.serviceName ?? service.name ?? "Unknown Service",
+    serviceName: cleanedName,
     expectedDuration:
       Number(service.expected_duration ?? service.expectedDuration ?? service.durationMinutes) || 0,
   };
@@ -72,6 +74,13 @@ export default function JoinQueue({ goToStatus }) {
 
     loadPageData();
   }, []);
+
+  const uniqueServices = services.filter(
+    (service, index, self) =>
+    index === self.findIndex(
+      (s) => s.serviceName === service.serviceName
+    )
+  );
 
   const selected = useMemo(
     () => services.find((service) => String(service.serviceId) === String(serviceId)),
@@ -227,7 +236,7 @@ export default function JoinQueue({ goToStatus }) {
             {services.length === 0 ? (
               <option value="">No services available</option>
             ) : (
-              services.map((service) => (
+              uniqueServices.map((service) => (
                 <option key={service.serviceId} value={service.serviceId}>
                   {service.serviceName}
                 </option>
@@ -304,6 +313,7 @@ const styles = {
     padding: 16,
     textAlign: "left",
     marginBottom: 16,
+    boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
   },
   cardTitle: {
     margin: "0",

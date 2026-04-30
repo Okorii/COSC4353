@@ -8,7 +8,21 @@ export default function AdminDashboard({goToServices, goToQueue}){
     //loading services
     fetch("http://localhost:3001/api/services")
       .then((res) => res.json())
-      .then((data) => setServices(data))
+      .then((data) => {
+        const cleaned = data.map((service) => {
+          const rawName =
+            service.service_name ?? service.name ?? "Unknown Service";
+
+          const cleanedName = rawName.replace(/\s+\d{6,}$/, "");
+
+          return {
+            ...service,
+            name: cleanedName,
+          };
+        });
+
+        setServices(cleaned);
+      })
       .catch((err) => console.error("Error loading services:", err));
 
     //loading queue info
@@ -26,21 +40,28 @@ export default function AdminDashboard({goToServices, goToQueue}){
   }
 
   function toggleService(id) {
-    fetch(`http://localhost:3001/api/services/${id}/toggle-active`, {
-        method: "PATCH",
-      })
-      .then((res) => res.json())
-      .then((data) => {
-        setServices((prev) =>
-          prev.map((service) =>
-            service.service_id === serviceId
-              ? { ...service, active: data.active }
-              : service
-          )
-        );
-      })
-      .catch((err) => console.error("Error toggling service:", err));
+    fetch(`http://localhost:3001/api/services/${id}/toggle`, {
+    method: "PATCH",
+  })
+    .then((res) => res.json())
+    .then(() => {
+      setServices((prev) =>
+        prev.map((service) =>
+          service.service_id === id
+            ? { ...service, active: !service.active }
+            : service
+        )
+      );
+    })
+    .catch((err) => console.error("Error toggling service:", err));
   }
+
+  const uniqueServices = services.filter(
+    (service, index, self) =>
+      index === self.findIndex(
+        (s) => s.name.toLowerCase() === service.name.toLowerCase()
+      )
+  );
 
   return (
     <div style={styles.page}>
@@ -53,7 +74,7 @@ export default function AdminDashboard({goToServices, goToQueue}){
         <h2 style={styles.cardTitle}>Current Services</h2>
 
         <div style={styles.list}>
-          {services.map((s) => (
+          {uniqueServices.map((s) => (
             <div key={s.service_id} style={styles.serviceRow}>
               <div style={{ flex: 1 }}>
                 <div style={styles.serviceName}>{s.name}</div>
@@ -127,6 +148,7 @@ const styles = {
         padding: 16,
         textAlign: "left",
         marginBottom: 16,
+        boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
     },
 
     cardTitle:{
@@ -137,37 +159,38 @@ const styles = {
 
     //service list cards text
     list:{
-      marginTop: 12,
-      display: "flex",
-      flexDirection: "column",
+      marginTop: 10,
+      display: "grid",
+      gridTemplateColumns: "repeat(2, 1fr)",
       gap: 12,
     },
 
     serviceRow:{
-      border: "1px solid #b7b9bb",
-      borderRadius: 14,
-      padding: 16,
+      border: "1px solid #dbdddf",
+      borderRadius: 12,
+      padding: 10,
       background: "#fafafa",
       display: "flex",
       gap: 14,
       alignItems: "flex-start",
+      boxShadow: "0 2.5px 5px rgba(0,0,0,0.15)",
     },
 
     serviceName:{
-      fontSize: 18,
-      fontWeight: 600,
-      marginBottom: 4,
+      fontSize: 15,
+      fontWeight: 700,
+      marginBottom: 2,
     },
 
     //small text coding
     infoText: {
-      fontSize: 13,
+      fontSize: 12,
       color: "#6b7280",
-      marginBottom: 8,
+      marginBottom: 4,
     },
 
     descText: {
-      fontSize: 14,
+      fontSize: 13,
       color: "#374151",
     },
 
@@ -182,21 +205,23 @@ const styles = {
     },
 
     openBtn:{
-      minWidth: 100,
-      padding: "10px 12px",
+      minWidth: 72,
+      padding: "7px 9px",
       background: "#117a37",
       color: "#fff",
       cursor: "pointer",
       fontWeight: 700,
+      fontSize: 12,
     },
 
     closeBtn:{
-      minWidth: 100,
-      padding: "10px 12px",
+      minWidth: 72,
+      padding: "7px 9px",
       background: "#ac1d1d",
       color: "#fff",
       cursor: "pointer",
       fontWeight: 700,
+      fontSize: 12,
     },
     //other page buttons code
     btnRow:{
