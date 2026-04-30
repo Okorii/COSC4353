@@ -7,6 +7,7 @@ const services = [
   { id: 2, name: "Haircut" },
   { id: 3, name: "Full Groom (Bath + Haircut + Nails)" },
   { id: 4, name: "Bath + Dry" },
+  { id: 5, name: "Teeth Cleaning" },
 ];
 
 export default function Reporting() {
@@ -177,12 +178,13 @@ function ReportTable({ title, columns, rows }) {
 //styling
 const page = {
   minHeight: "100vh",
-  width: "100vw",
+  width: "100%",
   background: "#24243a",
   color: "#ffffff",
   fontFamily: "system-ui, Arial",
-  padding: 20,
+  padding: 16,
   boxSizing: "border-box",
+  overflowX: "hidden",
 };
 
 const container = {
@@ -233,7 +235,7 @@ const messageBox = {
 
 const cards = {
   display: "grid",
-  gridTemplateColumns: "repeat(4, 1fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
   gap: 14,
   marginBottom: 18,
 };
@@ -262,7 +264,7 @@ const cardNumber = {
 
 const tableBox = {
   borderRadius: 14,
-  overflow: "hidden",
+  overflowX: "auto",
   border: "2px solid #ffffff",
   background: "#8f8f8f",
   color: "#000000",
