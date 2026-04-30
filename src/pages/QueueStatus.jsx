@@ -38,16 +38,21 @@ export default function QueueStatus() {
         ? queueData.findIndex((e) => Number(e.id) === Number(entry.id))
         : -1;
 
-      setQueueInfo({
-        entryId: entry.id,
-        serviceName: entry.serviceName || `Service ${entry.serviceId}`,
-        petName: entry.petName,
-        position: index >= 0 ? index + 1 : 0,
-        totalInQueue: Array.isArray(queueData) ? queueData.length : 0,
-        etaMinutes: entry.expectedDuration || 0,
-        status: entry.status || "WAITING",
-        lastUpdated: new Date(),
-      });
+        const position = index >= 0 ? index + 1 : 0;
+        const duration = Number(entry.expectedDuration || 0);
+        const peopleAhead = Math.max(position - 1, 0);
+        const etaMinutes = peopleAhead * duration;
+        
+        setQueueInfo({
+          entryId: entry.id,
+          serviceName: entry.serviceName || `Service ${entry.serviceId}`,
+          petName: entry.petName,
+          position,
+          totalInQueue: Array.isArray(queueData) ? queueData.length : 0,
+          etaMinutes,
+          status: entry.status || "WAITING",
+          lastUpdated: new Date(),
+        });
 
       if (showNotification) {
         let message = "You’re in the queue. We’ll notify you when you’re almost ready.";
