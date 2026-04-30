@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 
 //services
 const services = [
-  { id: "all", name: "Services", minutes: 0 },
-  { id: 1, name: "Nail trimming", minutes: 10 },
-  { id: 2, name: "Haircut", minutes: 30 },
-  { id: 3, name: "Full Groom (Bath + Haircut + Nails)", minutes: 60 },
-  { id: 4, name: "Bath + Dry", minutes: 35 },
+  { id: "all", name: "All Services" },
+  { id: 1, name: "Nail trimming" },
+  { id: 2, name: "Haircut" },
+  { id: 3, name: "Full Groom (Bath + Haircut + Nails)" },
+  { id: 4, name: "Bath + Dry" },
+  { id: 5, name: "Teeth Cleaning" },
 ];
 
 
@@ -67,15 +68,16 @@ export default function History() {
 
   return (
     <div
-      style={{
-        minHeight: "100vh",
-        width: "100vw",
-        background: "#24243a",
-        color: "#ffffff",
-        fontFamily: "system-ui, Arial",
-        padding: 20,
-        boxSizing: "border-box",
-      }}
+    style={{
+      minHeight: "100vh",
+      width: "100%",           
+      background: "#24243a",
+      color: "#ffffff",
+      fontFamily: "system-ui, Arial",
+      padding: 16,             
+      boxSizing: "border-box",
+      overflowX: "hidden",     
+    }}
     >
       <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto" }}>
         {/*header*/}
@@ -86,6 +88,8 @@ export default function History() {
             justifyContent: "space-between",
             marginBottom: 14,
             padding: "14px 16px",
+            flexWrap: "wrap",
+            gap: 12,
             borderRadius: 14,
             background: "#8f8f8f",
             color:"#000000",
@@ -135,7 +139,7 @@ export default function History() {
         <div
           style={{
             borderRadius: 14,
-            overflow: "hidden",
+            overflowX: "auto",
             border: "2px solid #ffffff",
             background: "#8f8f8f",
             color: "#000000",
@@ -188,7 +192,7 @@ export default function History() {
                       <tr key={h.id} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                         <td style={td}>{dateText}</td>
                         <td style={td}>{h.pet}</td>
-                        <td style={td}>{svc?.name ?? "Service"}</td>
+                        <td style={td}>{h.service_name || svc?.name || "Service"}</td>
                         <td style={td}>{formatOutcome(h.outcome)}</td>
                       </tr>
                     );

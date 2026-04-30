@@ -61,11 +61,9 @@ export default function QueueManagement() {
     
         serviceId:item.serviceId,
 
-        start: new Date(item.joinedAt).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        }),
+        start: item.startTime,
+
+
         priority: item.priority,
         //groomerId: "g1",
       }));
