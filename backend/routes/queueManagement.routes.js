@@ -18,6 +18,7 @@ router.get("/", async (req, res) => {
         qe.owner_name AS ownerName,
         qe.service_id AS serviceId,
         qe.joined_at AS joinedAt,
+        DATE_FORMAT(CONVERT_TZ(qe.joined_at, '+00:00', '-05:00'), '%H:%i') AS startTime,
         qe.status,
         s.priority
       FROM queue_entries qe
