@@ -1,3 +1,4 @@
+import "./App.css"
 import { useState } from "react";
 import QueueManagement from "./pages/QueueManagement.jsx";
 import ServiceManagement from "./pages/ServiceManagement.jsx";
@@ -108,7 +109,7 @@ export default function App() {
 const appShell = {
   minHeight: "100vh",
   width: "100%",
-  background: "#c4e7e5",
+  background: "#f3f4f6",
 };
 
 const topTabs = {
