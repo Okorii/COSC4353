@@ -71,6 +71,7 @@ VALUES
 ('Haircut', 'Professional haircut tailored to your pet''s breed and style preference.', 30, 'medium', 1),
 ('Full Groom', 'Complete grooming package including bath, haircut, and nail trim.', 60, 'high', 1),
 ('Bath + Dry', 'Bath, shampoo, blow dry, and brushing.', 35, 'medium', 1);
+('Teeth Cleaning', 'Basic teeth cleaning service.', 20, 'low', 1);
 
 INSERT INTO queue_entries (pet_name, owner_name, service_id, joined_at, status)
 VALUES
@@ -78,6 +79,7 @@ VALUES
 ('Rocky', 'luis@email.com', 2, NOW(), 'WAITING'),
 ('Luna', 'billy@email.com', 3, NOW(), 'WAITING'),
 ('Chucho', 'manuel@email.com', 4, NOW(), 'WAITING');
+('Mochi', 'ana@email.com', 5, NOW(), 'WAITING');
 
 INSERT INTO history (date, pet_name, owner_name, service_id, outcome)
 VALUES
