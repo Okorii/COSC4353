@@ -50,7 +50,14 @@ export default function QueueStatus() {
           position,
           totalInQueue: Array.isArray(queueData) ? queueData.length : 0,
           etaMinutes,
-          status: entry.status || "WAITING",
+          status:
+            entry.status === "SERVED"
+              ? "SERVED"
+              : position === 1
+              ? "SERVING"
+              : position === 2
+              ? "ALMOST_READY"
+              : "WAITING",
           lastUpdated: new Date(),
         });
 
@@ -62,14 +69,8 @@ export default function QueueStatus() {
         if (entry.status === "SERVED") {
           message = "Ready for pickup! Please come to the front desk.";
           type = "success";
-<<<<<<< Updated upstream
-        } else if (entry.status === "SERVING" || index === 0) {
-          message = "It’s your turn! Grooming started.";
-=======
         } else if (index === 0) {
-          message =
-            "It’s your turn! Grooming started. We’ll notify you when your pet is ready for pickup.";
->>>>>>> Stashed changes
+          message = "It’s your turn! Grooming started.";
           type = "success";
         } else if (index === 1) {
           message = "You’re next in line. Please be near the store.";
