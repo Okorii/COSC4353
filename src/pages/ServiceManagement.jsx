@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-export default function ServiceManagement() {
+export default function ServiceManagement({ goToAdmin }) {
   const [services, setServices] = useState([]);
 
   const emptyForm = useMemo(
@@ -198,9 +198,10 @@ export default function ServiceManagement() {
             Create and edit grooming services.
           </p>
         </div>
-
-
       </header>
+      <span onClick={goToAdmin} style={styles.backButton}>
+            ← Return to Admin Dashboard
+      </span>
 
       <div style={styles.card}>
         <div style={styles.cardTop}>
@@ -471,5 +472,12 @@ const styles = {
     cursor: "pointer",
     fontWeight: 800,
     fontSize: 13,
+  },
+  backButton: {
+    color: "#166534",
+    fontWeight: 600,
+    cursor: "pointer",
+    textDecoration: "underline",
+    fontSize: 14,
   },
 };

@@ -10,7 +10,7 @@ const services = [
   { id: 5, name: "Teeth Cleaning" },
 ];
 
-export default function Reporting() {
+export default function Reporting({ goToAdmin }) {
   //stores report data from backend
   const [report, setReport] = useState(null);
   //service filter
@@ -59,6 +59,9 @@ export default function Reporting() {
             <div style={{ color: "#787b80", fontSize: 16, fontWeight: 500, marginTop: 6 }}>
               View reports on queue and service activity. 
             </div>
+            <span onClick={goToAdmin} style={backButton}>
+              ← Return to Admin Dashboard
+            </span>
           </div>
           {/* Filters + Export */}
           <div style={{ display: "flex", gap: 10 }}>
@@ -289,4 +292,12 @@ const td = {
   borderTop: "1px solid rgba(0,0,0,0.25)",
   color: "#000000",
   background: "#f4f4f4",
+};
+
+const backButton = {
+    color: "#166534",
+    fontWeight: 600,
+    cursor: "pointer",
+    textDecoration: "underline",
+    fontSize: 14,
 };

@@ -54,9 +54,13 @@ export default function App() {
 
       <div style={pageWrap}>
         {page === "queue" ? (
-          <QueueManagement />
+          <QueueManagement 
+          goToAdmin={() => setPage("admin")}
+          />
         ) : page === "service" ? (
-          <ServiceManagement />
+          <ServiceManagement 
+          goToAdmin={() => setPage("admin")}
+          />
         ) : page === "status" ? (
           <QueueStatus />
         ) : page === "admin" ? (
@@ -82,7 +86,9 @@ export default function App() {
             goToHistory={() => setPage("history")}
           />
         ) : page === "reporting" ? (
-          <Reporting />
+          <Reporting
+          goToAdmin={() => setPage("admin")}
+          />
         ) : (
           <History />
         )}

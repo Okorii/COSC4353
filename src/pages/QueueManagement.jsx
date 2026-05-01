@@ -37,7 +37,7 @@ function to12Hour(time24hr) {
 
 
 //REACT
-export default function QueueManagement() {
+export default function QueueManagement({ goToAdmin }) {
   //select groomer
   //const [selectedGroomerId, setSelectedGroomerId] = useState("all");
   //select specific appointment service
@@ -234,6 +234,9 @@ const prioritycolor = (priority) => ({
         <div>
             <div style = {{margin: 0, fontSize: 28, fontWeight: 700, color: "#14532d"}}>Queue Management</div>
             <div style = {{margin: 7, fontSize: 16, fontWeight: 400, color: "#787b80"}}>View and manage queue.</div>
+            <span onClick={goToAdmin} style={backButton}>
+              ← Return to Admin Dashboard
+            </span>
         </div>
 
         {/*Header*/}
@@ -447,4 +450,12 @@ const removebutton = {
   border: "none",
   background: "#b63535", // red
   color: "#ffffff",
+};
+
+const backButton = {
+    color: "#166534",
+    fontWeight: 600,
+    cursor: "pointer",
+    textDecoration: "underline",
+    fontSize: 14,
 };
