@@ -77,10 +77,21 @@ export default function QueueStatus() {
           type = "warning";
         }
 
-        setNotifications((prev) => [
-          { id: Date.now(), type, text: message, time: new Date() },
-          ...prev,
-        ]);
+        setNotifications((prev) => {
+          const alreadyExists = prev.some((n) => n.text === message);
+        
+          if (alreadyExists) return prev;
+        
+          return [
+            {
+              id: Date.now(),
+              type,
+              text: message,
+              time: entry.updatedAt ? new Date(entry.updatedAt) : new Date(),
+            },
+            ...prev,
+          ];
+        });
       }
     } catch (error) {
       console.error("Failed to load queue status", error);
@@ -101,8 +112,9 @@ export default function QueueStatus() {
   }
 
   useEffect(() => {
-    loadQueueStatus();
+    loadQueueStatus(true);
   }, []);
+  
 
   const statusLabel = useMemo(() => {
     if (!queueInfo.entryId) return "Waiting";
