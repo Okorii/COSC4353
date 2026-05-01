@@ -104,7 +104,7 @@ export default function History({goToUserDashboard}) {
         {/*table*/}
         <div
           style={{
-            borderRadius: 14,
+            borderRadius: 10,
             overflowX: "auto",
             border: "1px solid #e5dddd",
             background: "#3f5e36",
@@ -217,7 +217,8 @@ const totalRow = {
   textAlign: "left",
   fontWeight: 700,
   color: "#14532d",
-  background: "#def4d8c0",
+  background: "#f4f4f4",
+  borderTop: "2px solid rgba(0,0,0,0.25)",
 };
 
 const selectStyle = {

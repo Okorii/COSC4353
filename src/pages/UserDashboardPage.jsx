@@ -292,10 +292,7 @@ export default function UserDashboardPage({
     <section className="assignment-shell">
       <div className="assignment-hero assignment-dashboard">
         <div>
-          <h1 className="assignment-title">Dashboard</h1>
-          <p className="assignment-subtitle">
-            {user ? `Signed in as ${user.name || user.email}` : "User dashboard"}
-          </p>
+          <h1 className="assignment-title"> {user ? `Welcome, ${user.name || user.email}` : "User dashboard"}</h1>
         </div>
 
         <button type="button" className="assignment-button logout-btn" onClick={logout}>
@@ -378,6 +375,9 @@ export default function UserDashboardPage({
 
           <div className="dashboard-card">
             <h2>Services</h2>
+            <p className="dashboard-subtitle">
+              Select a service to join the queue.
+            </p>
             <div className="dashboard-actions">
               {services.length === 0 ? (
                 <p className="dashboard-meta">No active services available.</p>

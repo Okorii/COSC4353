@@ -28,7 +28,7 @@ function normalizeQueueEntry(entry) {
   };
 }
 
-export default function JoinQueue({ goToStatus }) {
+export default function JoinQueue({ goToStatus, goToUserDashboard }) {
   const [services, setServices] = useState([]);
   const [queue, setQueue] = useState([]);
   const [petName, setPetName] = useState("");
@@ -231,6 +231,9 @@ export default function JoinQueue({ goToStatus }) {
           <p style={styles.subtitle}>
             Join or leave a service queue.
           </p>
+          <span onClick={goToUserDashboard} style={styles.backButton}>
+              ← Return to Dashboard
+          </span>
         </div>
       </header>
 
@@ -447,5 +450,13 @@ const styles = {
     color: "#fff",
     cursor: "pointer",
     fontWeight: 700,
+  },
+
+  backButton: {
+    color: "#166534",
+    fontWeight: 600,
+    cursor: "pointer",
+    textDecoration: "underline",
+    fontSize: 14,
   },
 };

@@ -4,7 +4,7 @@ import {
   getStoredQueueEntryId,
 } from "../lib/userQueueStorage.js";
 
-export default function QueueStatus() {
+export default function QueueStatus({goToUserDashboard}) {
   const [queueInfo, setQueueInfo] = useState({
     entryId: null,
     serviceName: "",
@@ -195,6 +195,9 @@ export default function QueueStatus() {
           <p style={styles.subtitle}>
             Track your pet’s place in line, current status, and wait time.
           </p>
+          <span onClick={goToUserDashboard} style={styles.backButton}>
+              ← Return to Dashboard
+            </span>
         </div>
 
         <div style={{ ...styles.badge, ...statusStyle }}>{statusLabel}</div>
@@ -313,7 +316,6 @@ const styles = {
     margin: "0 auto",
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto",
     minHeight: "100vh",
-    background: "linear-gradient(135deg, #1f1c2c, #2c3e50)",
   },
 
   header: {
@@ -326,13 +328,13 @@ const styles = {
 
   title: {
     margin: 0,
-    fontSize: 32,
-    color: "white",
+    fontSize: 28,
+    color: "#14532d",
   },
 
   subtitle: {
     margin: "6px 0 0",
-    color: "#d1d5db",
+    color: "#787b80",
   },
 
   badge: {
@@ -496,4 +498,13 @@ const styles = {
     margin: "10px 0 0",
     color: "#374151",
   },
+
+  backButton: {
+    color: "#166534",
+    fontWeight: 600,
+    cursor: "pointer",
+    textDecoration: "underline",
+    fontSize: 14,
+  },
+
 };
