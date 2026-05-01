@@ -26,8 +26,8 @@ export default function App() {
             User Dashboard
           </button>
           <button
-            style={tabBtn(page === "queue")}
-            onClick={() => setPage("queue")}
+            style={tabBtn(page === "status")}
+            onClick={() => setPage("status")}
           >
             Queue Status
           </button>
