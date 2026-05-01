@@ -53,19 +53,17 @@ export default function LoginPage({ goToRegister, goToDashboard }) {
   };
 
   return (
-    <section className="assignment-shell">
-      <div className="assignment-hero assignment-hero-centered">
-        <div>
-          <h1 className="assignment-title">Welcome!</h1>
-        </div>
-      </div>
+    <section className="login-shell">
+      <div className="assignment-hero assignment-hero-centered"></div>
 
       <div className="assignment-stack">
-        <div className="assignment-card">
-          <h2>Sign In</h2>
+        <div className="login-card">
+          <h1 className="login-title"> Welcome to PetCare</h1>
+
+          <p className="login-subtitle">Sign in to access your PetCare account</p>
 
           <form className="assignment-form" onSubmit={handleSubmit}>
-            <label htmlFor="login-email">Email</label>
+            <label>Email</label>
             <input
               id="login-email"
               type="email"
@@ -75,7 +73,7 @@ export default function LoginPage({ goToRegister, goToDashboard }) {
               required
             />
 
-            <label htmlFor="login-password">Password</label>
+            <label>Password</label>
             <input
               id="login-password"
               type="password"

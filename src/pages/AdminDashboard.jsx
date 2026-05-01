@@ -66,7 +66,12 @@ export default function AdminDashboard({goToServices, goToQueue, goToReports}){
   return (
     <div style={styles.page}>
       <header style={styles.header}>
+        <div>
         <h1 style={styles.title}>Admin Dashboard</h1>
+          <p style={styles.subtitle}>
+            Access queue and service management, reporting tools and view current services.
+          </p>
+        </div>
       </header>
 
       {/*quickcard*/}
@@ -134,152 +139,159 @@ export default function AdminDashboard({goToServices, goToQueue, goToReports}){
 }
 
 const styles = {
-    page:{
-        width: "100%",
-        maxWidth: 980,
-        margin: "0 auto",
-        padding: 20,
-        fontFamily: "system-ui, -apple-system, Segoe UI, Roboto",
-    },
+  page:{
+    width: "100%",
+    maxWidth: 980,
+    margin: "0 auto",
+    padding: 20,
+    fontFamily: "system-ui, -apple-system, Segoe UI, Roboto",
+  },
 
-    header:{
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        gap: 16,
-        marginBottom: 16,
-    },
+  header:{
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 16,
+    marginBottom: 16,
+  },
 
-    title:{
-        margin: 0,
-        fontSize: 28,
-        color: "#194b06"
-    },
+  title:{
+    margin: 0,
+    fontSize: 28,
+    color: "#14532d"
+  },
 
-    card:{
-        background: "white",
-        border: "1px solid #e5e7eb",
-        borderRadius: 14,
-        padding: 16,
-        textAlign: "left",
-        marginBottom: 16,
-        boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
-    },
+  subtitle:{
+    margin: "6px 0 0",
+    color: "#787b80",
+  },
 
-    cardTitle:{
-        margin: "0",
-        fontSize: 20,
-        fontWeight: 700,
-    },
+  card:{
+    background: "white",
+    border: "1px solid #e5e7eb",
+    borderRadius: 14,
+    padding: 16,
+    textAlign: "left",
+    marginBottom: 16,
+    boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
+  },
 
-    //service list cards text
-    list:{
-      marginTop: 10,
-      display: "grid",
-      gridTemplateColumns: "repeat(2, 1fr)",
-      gap: 12,
-    },
+  cardTitle:{
+    margin: "0",
+    fontSize: 20,
+    fontWeight: 700,
+    color: "#14532d",
+  },
 
-    serviceRow:{
-      border: "1px solid #dbdddf",
-      borderRadius: 12,
-      padding: 10,
-      background: "#fafafa",
-      display: "flex",
-      gap: 14,
-      alignItems: "flex-start",
-      boxShadow: "0 2.5px 5px rgba(0,0,0,0.15)",
-    },
+  //service list cards text
+  list:{
+    marginTop: 10,
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: 12,
+  },
 
-    serviceName:{
-      fontSize: 15,
-      fontWeight: 700,
-      marginBottom: 2,
-    },
+  serviceRow:{
+    border: "1px solid #dbdddf",
+    borderRadius: 12,
+    padding: 10,
+    background: "#fafafa",
+    display: "flex",
+    gap: 14,
+    alignItems: "flex-start",
+    boxShadow: "0 2.5px 5px rgba(0,0,0,0.15)",
+  },
 
-    //small text coding
-    infoText: {
-      fontSize: 12,
-      color: "#6b7280",
-      marginBottom: 4,
-    },
+  serviceName:{
+    fontSize: 15,
+    fontWeight: 700,
+    marginBottom: 2,
+  },
 
-    descText: {
-      fontSize: 13,
-      color: "#374151",
-    },
+  //small text coding
+  infoText: {
+    fontSize: 12,
+    color: "#6b7280",
+    marginBottom: 4,
+  },
 
-    //open and close button and text coding
-    openText:{
-      color: "#065f46",
-      fontWeight: 700
-    },
-    closedText:{
-      color: "#991b1b",
-      fontWeight: 700
-    },
+  descText: {
+    fontSize: 13,
+    color: "#374151",
+  },
 
-    openBtn:{
-      minWidth: 72,
-      padding: "7px 9px",
-      background: "#117a37",
-      color: "#fff",
-      cursor: "pointer",
-      fontWeight: 700,
-      fontSize: 12,
-    },
+  //open and close button and text coding
+  openText:{
+    color: "#065f46",
+    fontWeight: 700
+  },
 
-    closeBtn:{
-      minWidth: 72,
-      padding: "7px 9px",
-      background: "#ac1d1d",
-      color: "#fff",
-      cursor: "pointer",
-      fontWeight: 700,
-      fontSize: 12,
-    },
+  closedText:{
+    color: "#991b1b",
+    fontWeight: 700
+  },
 
-    //three quick cards uptop for admin stuffs
-    quickCards: {
-      display: "grid",
-      gridTemplateColumns: "repeat(3, 1fr)",
-      gap: 18,
-      marginBottom: 22,
-      cursor: "pointer",
-    },
+  openBtn:{
+    minWidth: 72,
+    padding: "7px 9px",
+    background: "#117a37",
+    color: "#fff",
+    cursor: "pointer",
+    fontWeight: 700,
+    fontSize: 12,
+  },
 
-    quickCard: {
-      background: "white",
-      border: "1px solid #e5e7eb",
-      borderRadius: 18,
-      padding: "36px 20px",
-      minHeight: 220,
-      textAlign: "center",
-      cursor: "pointer",
-      boxShadow: "0 2px 5px rgba(0,0,0,0.12)",
-    },
+  closeBtn:{
+    minWidth: 72,
+    padding: "7px 9px",
+    background: "#ac1d1d",
+    color: "#fff",
+    cursor: "pointer",
+    fontWeight: 700,
+    fontSize: 12,
+  },
 
-    quickIcon: {
-      marginBottom: 18,
-    },
+  //three quick cards uptop for admin stuffs
+  quickCards: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: 18,
+    marginBottom: 22,
+    cursor: "pointer",
+  },
 
-    iconImg: {
-      width: 50,
-      height: 50,
-      objectFit: "contain",
-    },
+  quickCard: {
+    background: "white",
+    border: "1px solid #e5e7eb",
+    borderRadius: 18,
+    padding: "36px 20px",
+    minHeight: 220,
+    textAlign: "center",
+    cursor: "pointer",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.12)",
+  },
 
-    quickTitle: {
-      margin: 0,
-      fontSize: 18,
-      color: "#000000",
-      fontWeight: 600,
-    },
+  quickIcon: {
+    marginBottom: 18,
+  },
 
-    quickText: {
-      marginTop: 12,
-      fontSize: 14,
-      color: "#7b818b",
-      lineHeight: 1.4,
-    },
+  iconImg: {
+    width: 50,
+    height: 50,
+    objectFit: "contain",
+  },
+
+  quickTitle: {
+    margin: 0,
+    fontSize: 18,
+    color: "#000000",
+    fontWeight: 600,
+  },
+
+  quickText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: "#7b818b",
+    lineHeight: 1.4,
+  },
 };

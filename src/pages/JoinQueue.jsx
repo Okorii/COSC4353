@@ -212,7 +212,9 @@ export default function JoinQueue({ goToStatus }) {
       <header style={styles.header}>
         <div>
           <h1 style={styles.title}>Join Queue</h1>
-          <p style={styles.subtitle}>Join or leave a service queue.</p>
+          <p style={styles.subtitle}>
+            Join or leave a service queue.
+          </p>
         </div>
       </header>
 
@@ -308,10 +310,11 @@ const styles = {
   title: {
     margin: 0,
     fontSize: 28,
+    color: "#14532d",
   },
   subtitle: {
     margin: "6px 0 0",
-    color: "#4b5563",
+    color: "#787b80",
   },
   grid: {
     display: "block",
@@ -333,6 +336,8 @@ const styles = {
   },
   cardText: {
     marginTop: 10,
+    color: "#606976",
+    fontWeight: 450,
   },
   label: {
     display: "block",

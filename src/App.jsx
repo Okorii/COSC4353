@@ -29,18 +29,6 @@ export default function App() {
             style={tabBtn(page === "queue")}
             onClick={() => setPage("queue")}
           >
-            Queue Management
-          </button>
-          <button
-            style={tabBtn(page === "service")}
-            onClick={() => setPage("service")}
-          >
-            Service Management
-          </button>
-          <button
-            style={tabBtn(page === "status")}
-            onClick={() => setPage("status")}
-          >
             Queue Status
           </button>
           <button
@@ -60,12 +48,6 @@ export default function App() {
             onClick={() => setPage("history")}
           >
             History
-          </button>
-          <button
-            style={tabBtn(page === "reporting")}
-            onClick={() => setPage("reporting")}
-          >
-            Reporting
           </button>
         </div>
       ) : null}
@@ -98,8 +80,7 @@ export default function App() {
             goToJoinQueue={() => setPage("join")}
           />
         ) : page === "reporting" ? (
-          <Reporting 
-          />
+          <Reporting />
         ) : (
           <History />
         )}
