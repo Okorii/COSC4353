@@ -3,7 +3,7 @@ import "./Assignment4Auth.css";
 import { apiUrl } from "../lib/api.js";
 import { clearLegacyQueueState } from "../lib/userQueueStorage.js";
 
-export default function LoginPage({ goToRegister, goToDashboard }) {
+export default function LoginPage({ goToRegister, goToDashboard, goToAdminDashboard }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -44,7 +44,15 @@ export default function LoginPage({ goToRegister, goToDashboard }) {
 
       setMessage("Login successful");
       setMessageType("success");
-      goToDashboard();
+
+      const role = data.user.role;
+
+      if (role === "admin") {
+        goToAdminDashboard();
+      } else {
+        goToDashboard();
+      }
+
     } catch (error) {
       console.error("Login request failed:", error);
       setMessage("Server error");
@@ -87,7 +95,7 @@ export default function LoginPage({ goToRegister, goToDashboard }) {
 
             <button type="button" className="assignment-inline-link" onClick={goToRegister}>
               Create an account
-            </button>
+            </button> 
 
             <button className="assignment-button" type="submit" disabled={isSubmitting}>
               {isSubmitting ? "LOGGING IN..." : "LOGIN"}

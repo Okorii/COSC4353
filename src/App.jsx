@@ -13,44 +13,9 @@ import Reporting from "./pages/Reporting.jsx";
 
 export default function App() {
   const [page, setPage] = useState("login");
-  const showTopTabs = page !== "login" && page !== "register";
 
   return (
     <div style={appShell}>
-      {showTopTabs ? (
-        <div style={topTabs}>
-          <button
-            style={tabBtn(page === "user-dashboard")}
-            onClick={() => setPage("user-dashboard")}
-          >
-            User Dashboard
-          </button>
-          <button
-            style={tabBtn(page === "status")}
-            onClick={() => setPage("status")}
-          >
-            Queue Status
-          </button>
-          <button
-            style={tabBtn(page === "admin")}
-            onClick={() => setPage("admin")}
-          >
-            Admin Dashboard
-          </button>
-          <button
-            style={tabBtn(page === "join")}
-            onClick={() => setPage("join")}
-          >
-            Join Queue
-          </button>
-          <button
-            style={tabBtn(page === "history")}
-            onClick={() => setPage("history")}
-          >
-            History
-          </button>
-        </div>
-      ) : null}
 
       <div style={pageWrap}>
         {page === "queue" ? (
@@ -70,6 +35,7 @@ export default function App() {
             goToQueue={() => setPage("queue")}
             goToServices={() => setPage("service")}
             goToReports={() => setPage("reporting")}
+            goToLogin={() => setPage("login")} 
           />
         ) : page === "join" ? (
           <JoinQueue 
@@ -80,6 +46,7 @@ export default function App() {
           <LoginPage
             goToRegister={() => setPage("register")}
             goToDashboard={() => setPage("user-dashboard")}
+            goToAdminDashboard={() => setPage("admin")}
           />
         ) : page === "register" ? (
           <RegistrationPage goToLogin={() => setPage("login")} />
@@ -110,22 +77,6 @@ const appShell = {
   background: "#f3f4f6",
 };
 
-const topTabs = {
-  padding: 12,
-  display: "flex",
-  gap: 10,
-};
-
 const pageWrap = {
   width: "100%",
 };
-
-const tabBtn = (active) => ({
-  padding: "8px 12px",
-  borderRadius: 8,
-  border: active ? "2px solid #fff" : "1px solid rgba(255,255,255,0.2)",
-  background: active ? "rgba(0,0,0,0.25)" : "rgba(0,0,0,0.15)",
-  color: "#fff",
-  cursor: "pointer",
-  fontWeight: 500,
-});

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function AdminDashboard({goToServices, goToQueue, goToReports}){
+export default function AdminDashboard({goToServices, goToQueue, goToReports, goToLogin}) {
   const [services, setServices] = useState([]);
   const [queueData, setQueue] = useState([]);
   
@@ -63,6 +63,11 @@ export default function AdminDashboard({goToServices, goToQueue, goToReports}){
       )
   );
 
+const handleLogout = () => {
+  localStorage.clear();   // clears user info
+  goToLogin();            // send back to login page
+};
+
   return (
     <div style={styles.page}>
       <header style={styles.header}>
@@ -72,6 +77,9 @@ export default function AdminDashboard({goToServices, goToQueue, goToReports}){
             Access queue and service management, reporting tools and view current services.
           </p>
         </div>
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
       </header>
 
       {/*quickcard*/}

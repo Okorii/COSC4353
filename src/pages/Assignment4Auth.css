@@ -227,3 +227,14 @@
     max-width: none;
   }
 }
+
+.goToPage{
+    margin-top: auto;
+    display: block;
+    text-align:right;
+    color: #166534;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 12px;
+}

@@ -308,7 +308,7 @@ export default function UserDashboardPage({
             <h2>Overview</h2>
             <div className="dashboard-queue-body">
               <div>
-                <p className="dashboard-label">Current Position:</p>
+                <p className="dashboard-label">Current Position in queue:</p>
                 <div className="dashboard-big-number">{currentPositionLabel}</div>
               </div>
 
@@ -329,6 +329,9 @@ export default function UserDashboardPage({
                   <span className="dashboard-muted">Email:</span>{" "}
                   <strong>{user?.email || "--"}</strong>
                 </p>
+                <span className="goToPage" onClick={goToStatus}>
+                  View full queue status information →
+                </span>
               </div>
             </div>
           </div>
