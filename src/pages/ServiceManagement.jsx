@@ -195,7 +195,7 @@ export default function ServiceManagement() {
         <div>
           <h1 style={styles.title}>Service Management</h1>
           <p style={styles.subtitle}>
-            Create and edit grooming services (admin). Connected to backend API.
+            Create and edit grooming services.
           </p>
         </div>
 
@@ -267,8 +267,7 @@ export default function ServiceManagement() {
       </div>
 
       <div style={styles.card}>
-        <h2 style={styles.cardTitle}>Services</h2>
-        <p style={styles.cardText}>This list is now loaded from the backend API.</p>
+        <h2 style={styles.cardTitle}>Current Services</h2>
 
         <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
           {services.length === 0 ? (
@@ -310,12 +309,12 @@ export default function ServiceManagement() {
 
 const styles = {
   page: {
+    width: "100%",
     padding: 20,
     maxWidth: 980,
     margin: "0 auto",
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto",
     minHeight: "100vh",
-    background: "linear-gradient(135deg, #1f1c2c, #2c3e50)",
   },
   header: {
     display: "flex",
@@ -324,8 +323,8 @@ const styles = {
     gap: 16,
     marginBottom: 16,
   },
-  title: { margin: 0, fontSize: 28, color: "white" },
-  subtitle: { margin: "6px 0 0", color: "#d1d5db" },
+  title: { margin: 0, fontSize: 28, color: "#14532d" },
+  subtitle: { margin: "6px 0 0", color: "#787b80" },
   newServiceBtn: {
     backgroundColor: "#ffffff",
     color: "#111827",
@@ -342,6 +341,7 @@ const styles = {
     borderRadius: 14,
     padding: 16,
     marginBottom: 16,
+    boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
   },
   cardTop: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 },
   cardTitle: { margin: 0, fontSize: 18 },
@@ -384,7 +384,7 @@ const styles = {
   counter: { fontSize: 12, color: "#6b7280" },
   actions: { display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" },
   primaryBtn: {
-    background: "#111827",
+    background: "#0e7c41",
     color: "white",
     border: "none",
     padding: "10px 12px",
