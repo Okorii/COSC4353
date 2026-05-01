@@ -7,6 +7,7 @@ const services = [
   { id: 2, name: "Haircut", minutes: 30 },
   { id: 3, name: "Full Groom (Bath + Haircut + Nails)", minutes: 60 },
   { id: 4, name: "Bath + Dry", minutes: 35 },
+  { id: 5, name: "Teeth Cleaning", minutes: 20 },
 ];
 
 function Dateformat(d) {

@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 
 //services
 const services = [
-  { id: "all", name: "All Services" },
-  { id: 1, name: "Nail trimming" },
-  { id: 2, name: "Haircut" },
-  { id: 3, name: "Full Groom (Bath + Haircut + Nails)" },
-  { id: 4, name: "Bath + Dry" },
-  { id: 5, name: "Teeth Cleaning" },
+  { id: "all", name: "Services", minutes: 0 },
+  { id: 1, name: "Nail trimming", minutes: 10 },
+  { id: 2, name: "Haircut", minutes: 30 },
+  { id: 3, name: "Full Groom (Bath + Haircut + Nails)", minutes: 60 },
+  { id: 4, name: "Bath + Dry", minutes: 35 },
+  { id: 5, name: "Teeth Cleaning", minutes: 20 },
 ];
 
 
