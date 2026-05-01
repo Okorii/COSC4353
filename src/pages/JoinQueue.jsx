@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiUrl } from "../lib/api.js";
+import {
+  clearStoredQueueState,
+  getStoredQueueOwnerEmail,
+  setStoredQueueState,
+} from "../lib/userQueueStorage.js";
 
 function normalizeService(service) {
   const rawName = service.service_name ?? service.serviceName ?? service.name ?? "Unknown Service";
@@ -27,7 +32,7 @@ export default function JoinQueue({ goToStatus }) {
   const [services, setServices] = useState([]);
   const [queue, setQueue] = useState([]);
   const [petName, setPetName] = useState("");
-  const [ownerName, setOwnerName] = useState("");
+  const [ownerName, setOwnerName] = useState(getStoredQueueOwnerEmail());
   const [serviceId, setServiceId] = useState("");
   const [message, setMessage] = useState("");
   const [loadingMessage, setLoadingMessage] = useState("");
@@ -161,8 +166,10 @@ export default function JoinQueue({ goToStatus }) {
         setMessage(data.error || "Failed to join queue.");
         return;
       }
-      localStorage.setItem("queueEntryId", data.id || data.entry_id);
-      localStorage.setItem("ownerName", ownerName.trim());
+      setStoredQueueState({
+        ownerEmail: ownerName.trim(),
+        entryId: data.id || data.entry_id,
+      });
 
       setMessage(
         `Joined ${selected?.serviceName || "the queue"}. Estimated wait: ${estWaitMinutes} minutes.`,
@@ -207,6 +214,7 @@ export default function JoinQueue({ goToStatus }) {
       }
 
       setMessage("Left the queue.");
+      clearStoredQueueState(ownerName.trim());
       await reloadQueue();
     } catch (error) {
       console.error("Error leaving queue:", error);

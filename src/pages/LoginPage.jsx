@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./Assignment4Auth.css";
 import { apiUrl } from "../lib/api.js";
+import { clearLegacyQueueState } from "../lib/userQueueStorage.js";
 
 export default function LoginPage({ goToRegister, goToDashboard }) {
   const [email, setEmail] = useState("");
@@ -39,6 +40,7 @@ export default function LoginPage({ goToRegister, goToDashboard }) {
       localStorage.setItem("user_name", data.user.name || "");
       localStorage.setItem("user_email", data.user.email || "");
       localStorage.setItem("user_role", data.user.role || "user");
+      clearLegacyQueueState();
 
       setMessage("Login successful");
       setMessageType("success");

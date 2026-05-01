@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import "./Assignment4Auth.css";
 import { apiUrl } from "../lib/api.js";
+import {
+  getStoredQueueEntryId,
+  getStoredQueueOwnerEmail,
+} from "../lib/userQueueStorage.js";
 
 function createEmptyQueueInfo() {
   return {
@@ -115,8 +119,8 @@ export default function UserDashboardPage({
           throw new Error(meData.error || "Failed to load profile");
         }
 
-        const ownerName = localStorage.getItem("ownerName") || meData.email;
-        const queueEntryId = localStorage.getItem("queueEntryId");
+        const ownerName = getStoredQueueOwnerEmail() || meData.email;
+        const queueEntryId = getStoredQueueEntryId();
 
         const requests = [
           fetch(apiUrl("/api/users/me/notifications"), requestOptions),
@@ -234,7 +238,7 @@ export default function UserDashboardPage({
   };
 
   const currentPositionLabel = queueInfo.position
-    ? `${queueInfo.position} of ${queueInfo.totalInQueue || queueInfo.position}`
+    ? `${queueInfo.position}`
     : "--";
 
   const latestNotification = useMemo(() => {

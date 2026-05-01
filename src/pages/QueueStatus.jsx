@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  clearStoredQueueState,
+  getStoredQueueEntryId,
+} from "../lib/userQueueStorage.js";
 
 export default function QueueStatus() {
   const [queueInfo, setQueueInfo] = useState({
@@ -16,7 +20,7 @@ export default function QueueStatus() {
 
   async function loadQueueStatus(showNotification = false) {
     try {
-      const entryId = localStorage.getItem("queueEntryId");
+      const entryId = getStoredQueueEntryId();
 
       if (!entryId) {
         resetQueueInfo();
@@ -28,6 +32,7 @@ export default function QueueStatus() {
 
       if (!entryRes.ok || !entry) {
         resetQueueInfo();
+        clearStoredQueueState();
         return;
       }
 
@@ -164,6 +169,7 @@ export default function QueueStatus() {
       }
 
       resetQueueInfo();
+      clearStoredQueueState();
 
       setNotifications((prev) => [
         {
