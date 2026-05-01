@@ -73,10 +73,12 @@ export default function RegistrationPage({ goToLogin }) {
   };
 
   return (
-    <section className="assignment-shell">
+    <section className="login-shell">
       <div className="assignment-stack">
-        <div className="assignment-card">
-          <h2>Create Your Account</h2>
+        <div className="login-card">
+          <h1 className="login-title">Create Your Account</h1>
+
+          <p className="login-subtitle">Register to access your PetCare account</p>
 
           <form className="assignment-form" onSubmit={handleSubmit}>
             <label htmlFor="register-name">Full Name</label>
