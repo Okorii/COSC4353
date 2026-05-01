@@ -44,13 +44,18 @@ function buildQueueNotification(queueInfo) {
   return "You're in the queue. We'll notify you when you're almost ready.";
 }
 
-function formatHistoryItem(item) {
+function formatHistoryItem(item, serviceNameById) {
   if (!item) {
     return "No history found";
   }
 
   const petName = item.pet || item.petName || "Pet";
-  const serviceName = item.service_name || item.serviceName || `Service ${item.serviceId ?? ""}`.trim();
+  const mappedServiceName = serviceNameById.get(Number(item.serviceId));
+  const serviceName =
+    item.service_name ||
+    item.serviceName ||
+    mappedServiceName ||
+    `Service ${item.serviceId ?? ""}`.trim();
   const outcome = item.outcome || "Updated";
   return `${petName} - ${serviceName} (${outcome})`;
 }
@@ -255,6 +260,14 @@ export default function UserDashboardPage({
     return ["No notifications found"];
   }, [notifications, queueInfo]);
 
+  const serviceNameById = useMemo(() => {
+    const map = new Map();
+    services.forEach((service) => {
+      map.set(Number(service.serviceId), service.serviceName);
+    });
+    return map;
+  }, [services]);
+
   const recentHistory = useMemo(() => {
     if (history.length === 0) {
       return ["No history found"];
@@ -263,8 +276,8 @@ export default function UserDashboardPage({
     return [...history]
       .sort((a, b) => b.date.localeCompare(a.date))
       .slice(0, 3)
-      .map((item) => formatHistoryItem(item));
-  }, [history]);
+      .map((item) => formatHistoryItem(item, serviceNameById));
+  }, [history, serviceNameById]);
 
   const openJoinQueueForService = (serviceId) => {
     localStorage.setItem("preferredServiceId", String(serviceId));
