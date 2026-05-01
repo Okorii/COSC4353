@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { getStoredQueueOwnerEmail } from "../lib/userQueueStorage.js";
 
 //services
 const services = [
@@ -10,9 +11,8 @@ const services = [
   { id: 5, name: "Teeth Cleaning", minutes: 20 },
 ];
 
-
 export default function History({goToUserDashboard}) {
-  const ownerName = localStorage.getItem("ownerName");
+  const ownerName = getStoredQueueOwnerEmail();
   const [selectedServiceId, setSelectedServiceId] = useState("all");
 
   // history
