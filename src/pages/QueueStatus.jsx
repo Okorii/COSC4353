@@ -94,10 +94,10 @@ export default function QueueStatus({goToUserDashboard}) {
         const newNotifications = [];
       
         // Smart ETA notification
-        if (etaMinutes === 20) {
+        if (etaMinutes <= 20 && etaMinutes > 0) {
           newNotifications.push({
-            type: "info",
-            text: "Your wait time is now about 20 minutes.",
+            type: "warning",
+            text: `Your wait time is now about ${etaMinutes} minutes. Please be nearby.`,
           });
         }
       

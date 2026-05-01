@@ -50,8 +50,10 @@ function buildQueueNotification(queueInfo) {
   }
 
   // ⭐ ETA smart feature
-  if (queueInfo.etaMinutes === 20) {
-    messages.push("Your wait time is now about 20 minutes.");
+  if (queueInfo.etaMinutes <= 20 && queueInfo.etaMinutes > 0) {
+    messages.push(
+      `Your wait time is now about ${queueInfo.etaMinutes} minutes. Please be nearby.`
+    );
   }
 
   // Default message if nothing else
