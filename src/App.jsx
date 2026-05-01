@@ -78,6 +78,8 @@ export default function App() {
           <UserDashboardPage
             goToLogin={() => setPage("login")}
             goToJoinQueue={() => setPage("join")}
+            goToStatus={() => setPage("status")}
+            goToHistory={() => setPage("history")}
           />
         ) : page === "reporting" ? (
           <Reporting />
