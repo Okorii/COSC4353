@@ -218,6 +218,7 @@ export default function JoinQueue({ goToStatus }) {
         </div>
       </header>
 
+      {/* join/leave form */}
       <div style={styles.grid}>
         <div style={styles.card}>
           <label style={styles.label}>Email*</label>
@@ -276,7 +277,8 @@ export default function JoinQueue({ goToStatus }) {
             </button>
           </div>
         </div>
-
+        
+        {/* view current joined queue btns */}
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Already joined a queue?</h2>
           <p style={styles.cardText}>
@@ -300,6 +302,7 @@ const styles = {
     padding: 20,
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto",
   },
+
   header: {
     display: "flex",
     alignItems: "flex-start",
@@ -307,20 +310,24 @@ const styles = {
     gap: 16,
     marginBottom: 16,
   },
+
   title: {
     margin: 0,
     fontSize: 28,
     color: "#14532d",
   },
+
   subtitle: {
     margin: "6px 0 0",
     color: "#787b80",
   },
+
   grid: {
     display: "block",
     gap: 16,
     marginTop: 16,
   },
+
   card: {
     background: "white",
     border: "1px solid #e5e7eb",
@@ -330,15 +337,18 @@ const styles = {
     marginBottom: 16,
     boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
   },
+
   cardTitle: {
     margin: "0",
     fontSize: 20,
   },
+
   cardText: {
     marginTop: 10,
     color: "#606976",
     fontWeight: 450,
   },
+
   label: {
     display: "block",
     marginTop: 12,
@@ -346,6 +356,7 @@ const styles = {
     fontSize: 13,
     color: "#374151",
   },
+
   input: {
     width: "100%",
     padding: "10px 12px",
@@ -356,6 +367,7 @@ const styles = {
     boxSizing: "border-box",
     fontSize: 14,
   },
+
   infoRow: {
     display: "flex",
     justifyContent: "space-between",
@@ -364,6 +376,7 @@ const styles = {
     borderRadius: 10,
     background: "rgba(0,0,0,0.06)",
   },
+  
   messageBox: {
     marginTop: 12,
     padding: 10,
@@ -371,12 +384,14 @@ const styles = {
     background: "rgba(0,0,0,0.06)",
     border: "1px solid rgba(0,0,0,0.08)",
   },
+
   btnRow: {
     display: "flex",
     gap: 10,
     marginTop: 12,
     flexWrap: "wrap",
   },
+
   joinBtn: {
     padding: "10px 12px",
     background: "#0e7c41",
@@ -384,6 +399,7 @@ const styles = {
     cursor: "pointer",
     fontWeight: 700,
   },
+
   leaveBtn: {
     padding: "10px 12px",
     background: "#b73636",
@@ -391,6 +407,7 @@ const styles = {
     cursor: "pointer",
     fontWeight: 700,
   },
+
   statusBtn: {
     padding: "10px 12px",
     background: "#33339c",
