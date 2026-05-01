@@ -11,7 +11,7 @@ const services = [
 ];
 
 
-export default function History() {
+export default function History({goToUserDashboard}) {
   const ownerName = localStorage.getItem("ownerName");
   const [selectedServiceId, setSelectedServiceId] = useState("all");
 
@@ -71,7 +71,6 @@ export default function History() {
     style={{
       minHeight: "100vh",
       width: "100%",           
-      background: "#24243a",
       color: "#ffffff",
       fontFamily: "system-ui, Arial",
       padding: 16,             
@@ -80,45 +79,12 @@ export default function History() {
     }}
     >
       <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto" }}>
-        {/*header*/}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 14,
-            padding: "14px 16px",
-            flexWrap: "wrap",
-            gap: 12,
-            borderRadius: 14,
-            background: "#8f8f8f",
-            color:"#000000",
-            boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
-            border: "1px solid rgba(255,255,255,0.05)",
-          }}
-        >
-          {/*title*/}
-          <div>
-            <div style={{fontSize: 16, opacity: 0.85,letterSpacing: 0.6 }}>History</div>
-            <div style={{ fontWeight: 700, marginTop:6 }}>Past Queues Joined</div>
-          </div>
-
-          <div style={{ display:"flex", alignItems:"center", gap: 10}}>
-            <select
-              value={selectedServiceId}
-              onChange={(e) => {
-                setSelectedServiceId(e.target.value);
-                setmessage("");
-              }}
-              style={selectgroomer}
-            >
-              {services.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+            <div style = {{margin: 0, fontSize: 28, fontWeight: 700, color: "#14532d"}}>History</div>
+            <div style = {{margin: 0, fontSize: 16, fontWeight: 500, color: "#787b80"}}>View your queue history.</div>
+            <span onClick={goToUserDashboard} style={backButton}>
+              ← Return to Dashboard
+            </span>
         </div>
 
         {message && (
@@ -140,10 +106,10 @@ export default function History() {
           style={{
             borderRadius: 14,
             overflowX: "auto",
-            border: "2px solid #ffffff",
-            background: "#8f8f8f",
-            color: "#000000",
-            boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
+            border: "1px solid #e5dddd",
+            background: "#3f5e36",
+            color: "#ffffff",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.25)",
           }}
         >
           <div
@@ -154,13 +120,25 @@ export default function History() {
               alignItems: "center",
             }}
           >
-            <div style={{ fontWeight: 700 }}>History</div>
-            <div style={{ opacity: 0.85 }}>
-              <strong>Total:</strong> {filteredHistory.length}
+            <div style={{ fontSize: 18, fontWeight: 700 }}>Past Queues Joined</div>
+            <div style={{ display:"flex", alignItems:"center", gap: 10}}>
+                <select
+                  value={selectedServiceId}
+                  onChange={(e) => {
+                    setSelectedServiceId(e.target.value);
+                    setmessage("");
+                  }}
+                  style={selectStyle}>
+                  {services.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
             </div>
           </div>
 
-          <div style={{ borderTop: "3px solid rgb(0, 0, 0)" }}>
+          <div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ textAlign: "left", fontSize: 12, letterSpacing: 0.7, opacity: 0.8 }}>
@@ -200,6 +178,9 @@ export default function History() {
                 )}
               </tbody>
             </table>
+            <div style={totalRow}>
+              <strong>   Total:</strong> {filteredHistory.length}
+            </div>
           </div>
         </div>
       </div>
@@ -209,8 +190,8 @@ export default function History() {
 
 const th = {
   padding: "12px 16px",
-  background: "#d9e6f7",
-  color: "#000000",
+  background: "#def4d8c0",
+  color: "#14532d",
   fontWeight: 900,
   textAlign: "left",
 };
@@ -223,11 +204,27 @@ const td = {
   borderTop: "1px solid rgba(0,0,0,0.25)",
 };
 
-const selectgroomer = {
+const backButton = {
+    color: "#166534",
+    fontWeight: 600,
+    cursor: "pointer",
+    textDecoration: "underline",
+    fontSize: 14,
+};
+
+const totalRow = {
+  padding: "14px 16px",
+  textAlign: "left",
+  fontWeight: 700,
+  color: "#14532d",
+  background: "#def4d8c0",
+};
+
+const selectStyle = {
   padding: "10px 12px",
   borderRadius: 10,
-  border: "2px solid #ffffff",
-  background: "#ffffff",
-  color: "#000000",
+  border: "1px solid #a9cbb5",
+  background: "#e0efdced",
+  color: "#536c4c",
   fontWeight: 600,
 };

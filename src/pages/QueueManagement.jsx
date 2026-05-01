@@ -247,7 +247,7 @@ const prioritycolor = (priority) => ({
 
         <div>
             <div style = {{margin: 0, fontSize: 28, fontWeight: 700, color: "#14532d"}}>Queue Management</div>
-            <div style = {{margin: 7, fontSize: 16, fontWeight: 400, color: "#787b80"}}>View and manage queue.</div>
+            <div style = {{margin: 0, fontSize: 16, fontWeight: 400, color: "#787b80"}}>View and manage queue.</div>
             <span onClick={goToAdmin} style={backButton}>
               ← Return to Admin Dashboard
             </span>

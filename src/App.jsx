@@ -62,7 +62,9 @@ export default function App() {
           goToAdmin={() => setPage("admin")}
           />
         ) : page === "status" ? (
-          <QueueStatus />
+          <QueueStatus 
+          goToUserDashboard={() => setPage("user-dashboard")}
+          />
         ) : page === "admin" ? (
           <AdminDashboard
             goToQueue={() => setPage("queue")}
@@ -70,7 +72,10 @@ export default function App() {
             goToReports={() => setPage("reporting")}
           />
         ) : page === "join" ? (
-          <JoinQueue goToStatus={() => setPage("status")} />
+          <JoinQueue 
+          goToStatus={() => setPage("status")}
+          goToUserDashboard={() => setPage("user-dashboard")}
+           />
         ) : page === "login" ? (
           <LoginPage
             goToRegister={() => setPage("register")}
@@ -90,7 +95,9 @@ export default function App() {
           goToAdmin={() => setPage("admin")}
           />
         ) : (
-          <History />
+          <History
+          goToUserDashboard={() => setPage("user-dashboard")}
+          />
         )}
       </div>
     </div>

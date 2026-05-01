@@ -106,12 +106,13 @@ export default function JoinQueue({ goToStatus }) {
     [services, serviceId],
   );
 
-  const queueForService = useMemo(
-    () => queue.filter((entry) => String(entry.serviceId) === String(serviceId)),
-    [queue, serviceId],
-  );
+  const estWaitMinutes = queue.reduce((total, entry) => {
+    const service = services.find(
+      (s) => String(s.serviceId) === String(entry.serviceId)
+    );
 
-  const estWaitMinutes = selected ? queueForService.length * selected.expectedDuration : 0;
+    return total + (service?.expectedDuration || 0);
+  }, 0);
 
   function validate() {
     if (!ownerName.trim()) return "Email is required.";
@@ -248,9 +249,9 @@ export default function JoinQueue({ goToStatus }) {
             placeholder="First name as it appears on file (ex: Luna)"
           />
 
-          <label style={styles.label}>Service *</label>
+          <label style={styles.label}>Select Service *</label>
           <select
-            style={styles.input}
+            style={styles.serviceSelect}
             value={serviceId}
             onChange={(event) => setServiceId(event.target.value)}
             disabled={uniqueServices.length === 0}
@@ -375,13 +376,30 @@ const styles = {
     fontSize: 14,
   },
 
+  serviceSelect: {
+    width: "100%",
+    padding: "12px 44px 12px 14px",
+    borderRadius: 12,
+    border: "1.5px solid #d1d5db",   
+    background: "#f9fafb",           
+    color: "#4a4a4a",
+    marginTop: 6,
+    fontSize: 15,
+    fontWeight: 600,
+    cursor: "pointer",
+  },
+
   infoRow: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
     marginTop: 12,
     padding: "10px 12px",
     borderRadius: 10,
-    background: "rgba(0,0,0,0.06)",
+    background: "#ecfdf5",
+    border: "1px solid #92d6a9",
+    color: "#14532d",
+    fontWeight: 550,
   },
   
   messageBox: {
