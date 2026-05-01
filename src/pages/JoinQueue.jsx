@@ -221,7 +221,7 @@ export default function JoinQueue({ goToStatus }) {
       {/* join/leave form */}
       <div style={styles.grid}>
         <div style={styles.card}>
-          <label style={styles.label}>Email*</label>
+          <label style={styles.label}>Email *</label>
           <input
             style={styles.input}
             type="email"
@@ -231,7 +231,7 @@ export default function JoinQueue({ goToStatus }) {
             placeholder="you@email.com"
           />
 
-          <label style={styles.label}>Pet Name*</label>
+          <label style={styles.label}>Pet Name *</label>
           <input
             style={styles.input}
             type="text"
@@ -241,7 +241,7 @@ export default function JoinQueue({ goToStatus }) {
             placeholder="First name as it appears on file (ex: Luna)"
           />
 
-          <label style={styles.label}>Service*</label>
+          <label style={styles.label}>Service *</label>
           <select
             style={styles.input}
             value={serviceId}
