@@ -211,17 +211,18 @@ const prioritycolor = (priority) => ({
     fontSize: 12,
     border: "1px solid rgba(0, 0, 0, 0.15)",
     background:
-      priority === "high" ? "rgba(255, 39, 1, 0.79)" : priority === "medium" ? "rgba(255, 217, 0, 0.55)" : "rgba(102, 199, 121, 0.44)",
+      priority === "high" ? "rgba(255, 39, 1, 0.79)" : priority === "medium" ? "rgba(255, 217, 0, 0.45)" : "rgba(102, 199, 121, 0.44)",
   });
 
   return (
     <div style={{ //background
         minHeight: "100vh", 
-        width: "100vw", 
-        background: "#24243a",
+        width: "100%", 
+        display: "flex",
+        justifyContent: "center",
         color: "#ffffff",
         fontFamily: "system-ui, Arial", 
-        padding: 20 ,
+        padding: "20px 0",
         boxSizing: "border-box",
         }}>
 
@@ -230,6 +231,11 @@ const prioritycolor = (priority) => ({
         width: "100%", 
         margin: "0 auto" }}> 
 
+        <div>
+            <div style = {{margin: 0, fontSize: 28, fontWeight: 700, color: "#14532d"}}>Queue Management</div>
+            <div style = {{margin: 7, fontSize: 16, fontWeight: 400, color: "#787b80"}}>View and manage queue.</div>
+        </div>
+
         {/*Header*/}
         <div style={{
           display: "flex",
@@ -237,15 +243,16 @@ const prioritycolor = (priority) => ({
           justifyContent: "space-between",
           marginBottom: 18,
           padding: "18px 20px",
+          border: "1px solid #e5e7eb",
           borderRadius: 14,
-          background: "#8f8f8f",
+          background: "#def4d8c0",
           color:"#000000",
-          boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
         }}>
             {/*title info*/}
           <div>
-            <div style={{ fontSize: 16, opacity: 0.85, letterSpacing: 0.6 }}>Appointments</div>
-            <div style={{ marginTop: 6, fontWeight: 700 }}>
+            <div style={{ fontSize: 16, opacity: 0.85, letterSpacing: 0.6 , color: "#29583ce4" }}>Appointments</div>
+            <div style={{ fontSize: 24, marginTop: 6, fontWeight: 700 , color: "#14532d"}}>
               {Dateformat(selectdate)}
             </div>
           </div>
@@ -282,25 +289,25 @@ const prioritycolor = (priority) => ({
         <div style={{
           borderRadius: 14,
           overflow: "hidden",
-          border: "2px solid #ffffff",
-          background: "#8f8f8f",
+          border: "1px solid #1e1e1e2a",
+          background: "#ffffff",
           color: "#000000",
-          boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
+          boxShadow: "0 8px 16px rgba(0,0,0,0.08)",
         }}>
           <div style={{ padding: "12px 16px", 
             display: "flex", 
             justifyContent: "space-between", 
             alignItems: "center" }}>
 
-            <div style={{ fontWeight: 700 }}>Queue Management</div>
-            <div style={{ opacity: 0.85 }}><strong>Queue Length:</strong> {queueLength}</div>
+            <div style={{ color: "#14532d", fontWeight: 700, fontSize: 18 }}>Queue Management</div>
+            <div style={{ color: "#14532d", opacity: 0.85 }}><strong>Queue Length:</strong> {queueLength}</div>
           </div>
             
         
           <div style={{ borderTop: "2px solid #ffffff" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ textAlign: "left", fontSize: 12, letterSpacing: 0.7, opacity: 0.8 }}>
+                <tr style={{ textAlign: "left", fontSize: 12, color: "#14532d", letterSpacing: 0.7, opacity: 0.8 }}>
                   <th style={th}>PET</th>
                   <th style={th}>OWNER</th>
                   <th style={th}>START</th>
@@ -323,7 +330,7 @@ const prioritycolor = (priority) => ({
                     const svc = serviceById.get(a.serviceId);
                     const end24 = Calculatetime(a.start, svc?.minutes ?? 30);
                     return (
-                      <tr key={a.id} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                      <tr key={a.id} style={{ borderTop: "1px solid rgba(255, 255, 255, 0.03)" }}>
                         <td style={td}><strong>{a.pet}</strong></td>
                         <td style={td}>{a.owner}</td>
                         <td style={td}>{to12Hour(a.start)}</td>
@@ -337,10 +344,10 @@ const prioritycolor = (priority) => ({
 
                         <td style={td}>
                             <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "nowrap" }}>
-                                <button style={upanddownbutton} onClick={() => move(idx, -1)} disabled={idx === 0}>Up</button>
-                                <button style={upanddownbutton} onClick={() => move(idx, 1)} disabled={idx === allappointments.length - 1}>Down</button>
+                                <button style={upanddownbutton} onClick={() => move(idx, -1)} disabled={idx === 0}>↑Up</button>
+                                <button style={upanddownbutton} onClick={() => move(idx, 1)} disabled={idx === allappointments.length - 1}>↓Down</button>
                                 <button style={messagebutton} onClick={() => customMessage(a)}>Message</button>
-                                <button style={readybutton} onClick={() => notifyReady(a)}>Ready</button>
+                                <button style={readybutton} onClick={() => notifyReady(a)}>Ready✓</button>
                                 <button style={removebutton} onClick={() => removepet(idx)}>Remove</button>
                             </div>
                         </td>
@@ -357,10 +364,11 @@ const prioritycolor = (priority) => ({
   );
 }
 
+
 const th = {
   padding: "12px 16px",
-  background: "#d9e6f7",
-  color: "#000000",
+  background: "#def4d8c0",
+  color: "#14532d",
   fontWeight: 900,
   textAlign: "left",
 };
@@ -369,7 +377,7 @@ const td = {
   padding: "12px 16px",
   verticalAlign: "middle",
   color: "#000000",
-  background: "#f4f4f4",
+  background: "#f4f4f4b2",
   borderTop: "1px solid rgba(0,0,0,0.25)",
 };
 
@@ -377,10 +385,11 @@ const td = {
 const selectgroomer = {
   padding: "10px 12px",
   borderRadius: 10,
-  border: "2px solid #ffffff",
+  border: "1px solid #d9d9d9",
   background: "#ffffff",
   color: "#000000",
-  fontWeight: 600,
+  fontWeight: 500,
+  fontSize: 15,
 };
 
 //base
@@ -401,7 +410,7 @@ const Servenextbutton = {
   padding: "10px 16px",
   borderRadius: 10,
   border: "none",
-  background: "#2fa043",
+  background: "#257e35",
   color: "#ffffff",
   cursor: "pointer",
   fontWeight: 800,
@@ -411,30 +420,31 @@ const Servenextbutton = {
 const upanddownbutton = {
   ...basebuttonformat,
   border: "none",
-  background: "#3f3f46",
+  background: "#257e35",
   color: "#ffffff",
 };
 
 //ready button
 const readybutton = {
    ...basebuttonformat,
-  border: "none",
-  background: "#36b13c",
-  color: "#ffffff",
+  border: "#257e3592 solid 1px",
+  background: "#257e3515",
+  color: "#257e35",
 };
 
 //message button
 const messagebutton = {
     ...basebuttonformat,
-    border: "none",
-    background: "#3f3f46",
-    color: "#ffffff", };
+  border: "#14461d92 solid 1px",
+  background: "#257e3515",
+  color: "#165220", 
+};
 
 
 //remove button
 const removebutton = {
   ...basebuttonformat,
   border: "none",
-  background: "#ef4444", // red
+  background: "#b63535", // red
   color: "#ffffff",
 };
