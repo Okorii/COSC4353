@@ -146,13 +146,20 @@ router.post("/serve-next", async (req, res) => {
   await pool.query(
     `
     UPDATE queue_entries
-    SET status = 'SERVING'
+    SET status = 'SERVED'
     WHERE entry_id = ?
     `,
     [next.id]
   );
+  await pool.query(
+  `
+  INSERT INTO history (pet_name, owner_name, service_id, outcome, date)
+  VALUES (?, ?, ?, 'completed', NOW())
+  `,
+  [next.petName, next.ownerName, next.serviceId]
+);
 
-  next.status = "SERVING";
+  next.status = "SERVED";
 
   res.json({ message: "Serving next user", served: next });
 } catch (error) {
@@ -277,4 +284,57 @@ router.delete("/:id", async (req, res) => {
   res.status(500).json({ error: "Failed to remove queue entry." });
 }
 });
+
+// reorder queue entries by swapping join times
+router.put("/reorder", async (req, res) => {
+  const { firstId, secondId } = req.body;
+
+  if (!firstId || !secondId) {
+    return res.status(400).json({ error: "firstId and secondId are required" });
+  }
+
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT entry_id, joined_at
+      FROM queue_entries
+      WHERE entry_id IN (?, ?)
+      `,
+      [firstId, secondId]
+    );
+
+    if (rows.length !== 2) {
+      return res.status(404).json({ error: "Queue entries not found" });
+    }
+
+    const first = rows.find((row) => Number(row.entry_id) === Number(firstId));
+    const second = rows.find((row) => Number(row.entry_id) === Number(secondId));
+
+    await pool.query(
+      `
+      UPDATE queue_entries
+      SET joined_at = ?
+      WHERE entry_id = ?
+      `,
+      [second.joined_at, firstId]
+    );
+
+    await pool.query(
+      `
+      UPDATE queue_entries
+      SET joined_at = ?
+      WHERE entry_id = ?
+      `,
+      [first.joined_at, secondId]
+    );
+
+    res.json({ message: "Queue order updated." });
+  } catch (error) {
+    console.error("Reorder queue error:", error);
+    res.status(500).json({ error: "Failed to reorder queue." });
+  }
+});
+
+
+
 module.exports = router;
