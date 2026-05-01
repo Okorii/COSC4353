@@ -68,7 +68,14 @@ export default function JoinQueue({ goToStatus }) {
         setQueue(normalizedQueue);
 
         if (normalizedServices.length > 0) {
-          setServiceId(String(normalizedServices[0].serviceId));
+          const preferredServiceId = localStorage.getItem("preferredServiceId");
+          const preferredService = normalizedServices.find(
+            (service) => String(service.serviceId) === String(preferredServiceId),
+          );
+
+          setServiceId(
+            String(preferredService?.serviceId ?? normalizedServices[0].serviceId),
+          );
         } else {
           setServiceId("");
         }

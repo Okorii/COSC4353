@@ -104,26 +104,40 @@ const allappointments = useMemo(() => {
 //appointments in queue
 const queueLength = allappointments.length;
 
-    //can move appointments up/down
-    const move = (index, direction) => {
-    //new position
-    const newIndex = index + direction;
-    //checking if out of bounds
-    if (newIndex < 0 || newIndex >= allappointments.length) return;
+  const move = async (index, direction) => {
+  const newIndex = index + direction;
 
-    //getting id
-    const ids = allappointments.map((a) => a.id);
-    const movingId = ids[index];
-    const swapId = ids[newIndex];
+  if (newIndex < 0 || newIndex >= allappointments.length) return;
 
-    const copy = [...appointments];
-    const i1 = copy.findIndex((a) => a.id === movingId);
-    const i2 = copy.findIndex((a) => a.id === swapId);
-    [copy[i1], copy[i2]] = [copy[i2], copy[i1]];
-    setappointment(copy);
-    //message stating what was done
-    setmessage(`Moved ${allappointments[index].pet} ${direction === -1 ? "up":"down"} in the queue.`);
-  };
+  const moving = allappointments[index];
+  const swap = allappointments[newIndex];
+
+  try {
+    const res = await fetch("http://localhost:3001/api/queue-management/reorder", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firstId: moving.id,
+        secondId: swap.id,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setmessage(data.error || "Failed to reorder queue.");
+      return;
+    }
+
+    setmessage(`Moved ${moving.pet} ${direction === -1 ? "up" : "down"} in the queue.`);
+    loadQueue();
+  } catch (error) {
+    console.error("Reorder error:", error);
+    setmessage("Server error while reordering queue.");
+  }
+};
 
   //removes from queue using backend api
   const removepet = async (index) => {

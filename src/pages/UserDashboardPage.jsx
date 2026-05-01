@@ -44,15 +44,37 @@ function buildQueueNotification(queueInfo) {
   return "You're in the queue. We'll notify you when you're almost ready.";
 }
 
-function formatHistoryItem(item) {
+function formatHistoryItem(item, serviceNameById) {
   if (!item) {
     return "No history found";
   }
 
   const petName = item.pet || item.petName || "Pet";
-  const serviceName = item.service_name || item.serviceName || `Service ${item.serviceId ?? ""}`.trim();
+  const mappedServiceName = serviceNameById.get(Number(item.serviceId));
+  const serviceName =
+    item.service_name ||
+    item.serviceName ||
+    mappedServiceName ||
+    `Service ${item.serviceId ?? ""}`.trim();
   const outcome = item.outcome || "Updated";
   return `${petName} - ${serviceName} (${outcome})`;
+}
+
+function formatNotificationItem(item) {
+  if (!item) {
+    return "No notifications found";
+  }
+
+  return item.message || item.text || JSON.stringify(item);
+}
+
+function normalizeService(service) {
+  const rawName = service.service_name ?? service.serviceName ?? service.name ?? "Unknown Service";
+  return {
+    serviceId: service.service_id ?? service.serviceId ?? service.id,
+    serviceName: rawName.replace(/\s+\d{6,}$/, ""),
+    active: service.active === 1 || service.active === true,
+  };
 }
 
 export default function UserDashboardPage({
@@ -64,6 +86,7 @@ export default function UserDashboardPage({
   const [user, setUser] = useState(null);
   const [history, setHistory] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [services, setServices] = useState([]);
   const [queueInfo, setQueueInfo] = useState(createEmptyQueueInfo());
   const [error, setError] = useState("");
 
@@ -100,6 +123,7 @@ export default function UserDashboardPage({
           fetch(
             `${apiUrl("/api/history")}?ownerName=${encodeURIComponent(ownerName)}`,
           ),
+          fetch(apiUrl("/api/services")),
         ];
 
         if (queueEntryId) {
@@ -110,8 +134,20 @@ export default function UserDashboardPage({
         const responses = await Promise.all(requests);
         const payloads = await Promise.all(responses.map((response) => response.json()));
 
-        const [notificationsResponse, historyResponse, queueEntryResponse, queueListResponse] = responses;
-        const [notificationsData, historyData, queueEntryData, queueListData] = payloads;
+        const [
+          notificationsResponse,
+          historyResponse,
+          servicesResponse,
+          queueEntryResponse,
+          queueListResponse,
+        ] = responses;
+        const [
+          notificationsData,
+          historyData,
+          servicesData,
+          queueEntryData,
+          queueListData,
+        ] = payloads;
 
         if (!notificationsResponse.ok) {
           throw new Error(notificationsData.error || "Failed to load notifications");
@@ -121,9 +157,24 @@ export default function UserDashboardPage({
           throw new Error(historyData.error || "Failed to load history");
         }
 
+        if (!servicesResponse.ok) {
+          throw new Error(servicesData.error || "Failed to load services");
+        }
+
         const normalizedHistory = Array.isArray(historyData) ? historyData : [];
         const normalizedNotifications = Array.isArray(notificationsData.notifications)
           ? notificationsData.notifications
+          : [];
+        const normalizedServices = Array.isArray(servicesData)
+          ? servicesData
+            .map(normalizeService)
+            .filter(
+              (service, index, self) =>
+                service.active &&
+                service.serviceName !== "Updated Haircut" &&
+                service.serviceName !== "Temp Service" &&
+                index === self.findIndex((s) => s.serviceName === service.serviceName),
+            )
           : [];
 
         let nextQueueInfo = createEmptyQueueInfo();
@@ -156,6 +207,7 @@ export default function UserDashboardPage({
         setUser(meData);
         setHistory(normalizedHistory);
         setNotifications(normalizedNotifications);
+        setServices(normalizedServices);
         setQueueInfo(nextQueueInfo);
         setError("");
       } catch (loadError) {
@@ -182,29 +234,55 @@ export default function UserDashboardPage({
   };
 
   const currentPositionLabel = queueInfo.position
-    ? `#${queueInfo.position} of ${queueInfo.totalInQueue || queueInfo.position}`
+    ? `${queueInfo.position} of ${queueInfo.totalInQueue || queueInfo.position}`
     : "--";
 
   const latestNotification = useMemo(() => {
-    if (queueInfo.entryId) {
-      return buildQueueNotification(queueInfo);
+    if (queueInfo.entryId || notifications.length > 0) {
+      const queueNotification = queueInfo.entryId
+        ? [{
+            id: `queue-${queueInfo.entryId}-${queueInfo.status}-${queueInfo.position}`,
+            text: buildQueueNotification(queueInfo),
+          }]
+        : [];
+
+      const userNotifications = notifications.map((item, index) => ({
+        ...item,
+        id: item.id ?? `notification-${index}`,
+        text: formatNotificationItem(item),
+      }));
+
+      return [...queueNotification, ...userNotifications]
+        .slice(0, 3)
+        .map((item) => item.text);
     }
 
-    if (notifications.length === 0) {
-      return "No notifications found";
-    }
-
-    return notifications[0].message || JSON.stringify(notifications[0]);
+    return ["No notifications found"];
   }, [notifications, queueInfo]);
 
-  const latestHistory = useMemo(() => {
+  const serviceNameById = useMemo(() => {
+    const map = new Map();
+    services.forEach((service) => {
+      map.set(Number(service.serviceId), service.serviceName);
+    });
+    return map;
+  }, [services]);
+
+  const recentHistory = useMemo(() => {
     if (history.length === 0) {
-      return "No history found";
+      return ["No history found"];
     }
 
-    const sortedHistory = [...history].sort((a, b) => b.date.localeCompare(a.date));
-    return formatHistoryItem(sortedHistory[0]);
-  }, [history]);
+    return [...history]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 3)
+      .map((item) => formatHistoryItem(item, serviceNameById));
+  }, [history, serviceNameById]);
+
+  const openJoinQueueForService = (serviceId) => {
+    localStorage.setItem("preferredServiceId", String(serviceId));
+    goToJoinQueue();
+  };
 
   return (
     <section className="assignment-shell">
@@ -268,7 +346,9 @@ export default function UserDashboardPage({
           >
             <h2>Notifications</h2>
             <ul className="dashboard-list">
-              <li>{latestNotification}</li>
+              {latestNotification.map((item, index) => (
+                <li key={`${item}-${index}`}>{item}</li>
+              ))}
             </ul>
           </div>
 
@@ -286,19 +366,29 @@ export default function UserDashboardPage({
           >
             <h2>History</h2>
             <ul className="dashboard-list">
-              <li>{latestHistory}</li>
+              {recentHistory.map((item, index) => (
+                <li key={`${item}-${index}`}>{item}</li>
+              ))}
             </ul>
           </div>
 
           <div className="dashboard-card">
             <h2>Services</h2>
             <div className="dashboard-actions">
-              <button type="button" className="assignment-button">
-                Appointment
-              </button>
-              <button type="button" className="assignment-button" onClick={goToJoinQueue}>
-                Walk In
-              </button>
+              {services.length === 0 ? (
+                <p className="dashboard-meta">No active services available.</p>
+              ) : (
+                services.map((service) => (
+                  <button
+                    key={service.serviceId}
+                    type="button"
+                    className="assignment-button"
+                    onClick={() => openJoinQueueForService(service.serviceId)}
+                  >
+                    {service.serviceName}
+                  </button>
+                ))
+              )}
             </div>
           </div>
         </div>
