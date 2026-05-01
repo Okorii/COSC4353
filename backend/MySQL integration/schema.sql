@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS services (
   name VARCHAR(100) NOT NULL,
   description TEXT,
   duration_minutes INT NOT NULL,
-  priority ENUM('low', 'medium', 'high') NOT NULL DEFAULT 'low',
+  priority ENUM('low', 'medium', 'high') NOT NULL DEFAULT 'medium',
   active BOOLEAN NOT NULL DEFAULT TRUE,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

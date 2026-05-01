@@ -36,9 +36,13 @@ export default function QueueStatus({goToUserDashboard}) {
         clearStoredQueueState();
         return;
       }
-
-      const queueRes = await fetch("http://localhost:3001/api/queue-management");
+      const [queueRes, servicesRes] = await Promise.all([
+        fetch("http://localhost:3001/api/queue-management"),
+        fetch("http://localhost:3001/api/services"),
+      ]);
+      
       const queueData = await queueRes.json();
+      const servicesData = await servicesRes.json();
       
       const activeQueue = Array.isArray(queueData)
         ? queueData.filter((e) => e.status === "WAITING" || e.status === "SERVING")
@@ -48,9 +52,25 @@ export default function QueueStatus({goToUserDashboard}) {
       
       const position = index >= 0 ? index + 1 : 0;
       const duration = Number(entry.expectedDuration || 0);
-      const peopleAhead = Math.max(position - 1, 0);
-      const etaMinutes = peopleAhead * duration;
-        
+
+      const peopleAheadEntries = index > 0 ? activeQueue.slice(0, index) : [];
+
+      const etaMinutes = peopleAheadEntries.reduce((total, queueEntry) => {
+        const service = Array.isArray(servicesData)
+          ? servicesData.find(
+              (s) =>
+                String(s.service_id ?? s.serviceId ?? s.id) ===
+                String(queueEntry.service_id ?? queueEntry.serviceId)
+            )
+          : null;
+      
+        return total + Number(
+          service?.expected_duration ??
+          service?.expectedDuration ??
+          service?.durationMinutes ??
+          0
+        );
+      }, 0);
       setQueueInfo({
         entryId: entry.id,
         serviceName: entry.serviceName || `Service ${entry.serviceId}`,
@@ -71,10 +91,21 @@ export default function QueueStatus({goToUserDashboard}) {
       });
 
       if (showNotification) {
+        const newNotifications = [];
+      
+        // Smart ETA notification
+        if (etaMinutes === 20) {
+          newNotifications.push({
+            type: "info",
+            text: "Your wait time is now about 20 minutes.",
+          });
+        }
+      
+        // Existing status notifications
         let message =
           "You’re in the queue. We’ll notify you when you’re almost ready.";
         let type = "info";
-
+      
         if (entry.status === "SERVED" && position === 0) {
           message = "Ready for pickup! Please come to the front desk.";
           type = "success";
@@ -85,19 +116,21 @@ export default function QueueStatus({goToUserDashboard}) {
           message = "You’re next in line. Please be near the store.";
           type = "warning";
         }
-
+      
+        newNotifications.push({ type, text: message });
+      
         setNotifications((prev) => {
-          const alreadyExists = prev.some((n) => n.text === message);
-        
-          if (alreadyExists) return prev;
-        
+          const filteredNew = newNotifications.filter(
+            (newNotif) => !prev.some((oldNotif) => oldNotif.text === newNotif.text)
+          );
+      
           return [
-            {
-              id: Date.now(),
-              type,
-              text: message,
+            ...filteredNew.map((n) => ({
+              id: Date.now() + Math.random(),
+              type: n.type,
+              text: n.text,
               time: entry.updatedAt ? new Date(entry.updatedAt) : new Date(),
-            },
+            })),
             ...prev,
           ];
         });

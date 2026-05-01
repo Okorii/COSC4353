@@ -21,31 +21,22 @@ export default function ServiceManagement({ goToAdmin }) {
   const [flash, setFlash] = useState("");
 
   function normalizeServices(data) {
-    const uniqueServices = data.filter(
-      (service, index, self) =>
-        index ===
-        self.findIndex(
-          (s) =>
-            s.service_name?.toLowerCase() ===
-            service.service_name?.toLowerCase()
-        )
-    );
-  
-    const cleanedServices = uniqueServices.filter(
-      (service) =>
-        !/\d{6,}/.test(service.service_name) &&
-        service.service_name !== "Temp Service" &&
-        service.service_name !== "Updated Haircut"
-    );
-    return cleanedServices.map((service) => ({
-      id: service.service_id,
-      name: service.service_name,
-      description: service.description || "",
-      durationMinutes: service.expected_duration,
-      priority: service.priority || "medium",
-      active: service.active === 1 || service.active === true,
-      updatedAt: new Date(),
-    }));
+    return data
+      .filter(
+        (service) =>
+          !/\d{6,}/.test(service.service_name) &&
+          service.service_name !== "Temp Service" &&
+          service.service_name !== "Updated Haircut"
+      )
+      .map((service) => ({
+        id: service.service_id,
+        name: service.service_name,
+        description: service.description || "",
+        durationMinutes: service.expected_duration,
+        priority: (service.priority || "medium").toLowerCase(),
+        active: service.active === 1 || service.active === true,
+        updatedAt: new Date(),
+      }));
   }
 
   async function loadServices() {
@@ -124,11 +115,13 @@ export default function ServiceManagement({ goToAdmin }) {
       ? `http://localhost:3001/api/services/${form.id}`
       : "http://localhost:3001/api/services";
 
-    const body = {
-      service_name: form.name.trim(),
-      description: form.description.trim(),
-      expected_duration: Number(form.durationMinutes),
-    };
+      const body = {
+        service_name: form.name.trim(),
+        description: form.description.trim(),
+        expected_duration: Number(form.durationMinutes),
+        priority: form.priority,
+        active: form.active,
+      };
 
     try {
       const res = await fetch(url, {
@@ -145,8 +138,9 @@ export default function ServiceManagement({ goToAdmin }) {
       }
 
       await loadServices();
-      setFlash(isEdit ? "Service updated successfully." : "Service created successfully.");
       startCreate();
+      setFlash(isEdit ? "Service updated successfully." : "Service created successfully.");
+
     } catch {
       setFlash("Server error while saving service.");
     }
@@ -240,6 +234,18 @@ export default function ServiceManagement({ goToAdmin }) {
               onChange={(e) => setField("durationMinutes", e.target.value)}
             />
             <div style={styles.errorText}>{errors.durationMinutes || ""}</div>
+          </div>
+          <div style={styles.field}>
+            <label style={styles.label}>Priority *</label>
+            <select
+              style={styles.input}
+              value={form.priority}
+              onChange={(e) => setField("priority", e.target.value)}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
           </div>
 
           <div style={{ ...styles.field, gridColumn: "1 / -1" }}>

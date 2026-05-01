@@ -31,22 +31,35 @@ function buildQueueNotification(queueInfo) {
   const statusLabel = getStatusLabel(queueInfo);
 
   if (!queueInfo.entryId) {
-    return "No notifications yet.";
+    return ["No notifications yet."];
   }
 
+  const messages = [];
+
+  // ⭐ Position-based messages
   if (statusLabel === "Served") {
-    return "Ready for pickup! Please come to the front desk.";
+    messages.push("Ready for pickup! Please come to the front desk.");
   }
 
   if (statusLabel === "Serving") {
-    return "It's your turn. Grooming has started.";
+    messages.push("It's your turn. Grooming has started.");
   }
 
   if (statusLabel === "Almost Ready") {
-    return "You're next in line. Please be nearby.";
+    messages.push("You're next in line. Please be nearby.");
   }
 
-  return "You're in the queue. We'll notify you when you're almost ready.";
+  // ⭐ ETA smart feature
+  if (queueInfo.etaMinutes === 20) {
+    messages.push("Your wait time is now about 20 minutes.");
+  }
+
+  // Default message if nothing else
+  if (messages.length === 0) {
+    messages.push("You're in the queue. We'll notify you when you're almost ready.");
+  }
+
+  return messages;
 }
 
 function formatHistoryItem(item, serviceNameById) {
@@ -78,6 +91,8 @@ function normalizeService(service) {
   return {
     serviceId: service.service_id ?? service.serviceId ?? service.id,
     serviceName: rawName.replace(/\s+\d{6,}$/, ""),
+    expectedDuration:
+      Number(service.expected_duration ?? service.expectedDuration ?? service.durationMinutes) || 0,
     active: service.active === 1 || service.active === true,
   };
 }
@@ -192,16 +207,28 @@ export default function UserDashboardPage({
 
           const position = index >= 0 ? index + 1 : 0;
           const duration = Number(queueEntryData.expectedDuration || 0);
-          const peopleAhead = Math.max(position - 1, 0);
-
+          const activeQueue = queueListData.filter(
+            (entry) => entry.status === "WAITING" || entry.status === "SERVING"
+          );
+          
+          const peopleAheadEntries = index > 0 ? activeQueue.slice(0, index) : [];
+          
+          const etaMinutes = peopleAheadEntries.reduce((total, queueEntry) => {
+            const service = normalizedServices.find(
+              (s) => String(s.serviceId) === String(queueEntry.serviceId ?? queueEntry.service_id)
+            );
+          
+            return total + (service?.expectedDuration || 0);
+          }, 0);
+          
           nextQueueInfo = {
             entryId: queueEntryData.id,
             serviceName: queueEntryData.serviceName || `Service ${queueEntryData.serviceId}`,
             serviceDuration: duration,
             petName: queueEntryData.petName || "",
             position,
-            totalInQueue: queueListData.length,
-            etaMinutes: peopleAhead * duration,
+            totalInQueue: activeQueue.length,
+            etaMinutes,
             status: queueEntryData.status || "WAITING",
           };
         }
@@ -246,10 +273,10 @@ export default function UserDashboardPage({
   const latestNotification = useMemo(() => {
     if (queueInfo.entryId || notifications.length > 0) {
       const queueNotification = queueInfo.entryId
-        ? [{
-            id: `queue-${queueInfo.entryId}-${queueInfo.status}-${queueInfo.position}`,
-            text: buildQueueNotification(queueInfo),
-          }]
+        ? buildQueueNotification(queueInfo).map((msg, index) => ({
+            id: `queue-${queueInfo.entryId}-${index}`,
+            text: msg,
+          }))
         : [];
 
       const userNotifications = notifications.map((item, index) => ({

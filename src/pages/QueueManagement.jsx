@@ -345,12 +345,26 @@ const prioritycolor = (priority) => ({
                 ) : (
                   allappointments.map((a, idx) => {
                     const svc = serviceById.get(a.serviceId);
-                    const end24 = Calculatetime(a.start, svc?.minutes ?? 30);
+                    
+
+                    // first pet starts at their own start time
+                    // everyone after starts when the previous pet ends
+                    const start24 =
+                      idx === 0
+                        ? a.start
+                        : allappointments.slice(0, idx).reduce((time, appt) => {
+                            const previousService = serviceById.get(appt.serviceId);
+                            return Calculatetime(time, previousService?.minutes ?? 30);
+                          }, allappointments[0].start);
+
+                    const end24 = Calculatetime(start24, svc?.minutes ?? 30);
+
+
                     return (
                       <tr key={a.id} style={{ borderTop: "1px solid rgba(255, 255, 255, 0.03)" }}>
                         <td style={td}><strong>{a.pet}</strong></td>
                         <td style={td}>{a.owner}</td>
-                        <td style={td}>{to12Hour(a.start)}</td>
+                        <td style={td}>{to12Hour(start24)}</td>
                         <td style={td}>{to12Hour(end24)}</td>
                         <td style={td}>{svc?.name ?? "Service"}</td>
                         <td style={td}>

@@ -7,21 +7,14 @@ router.get("/", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT
-         service_id,
-         name AS service_name,
-         description,
-         duration_minutes AS expected_duration,
-         active,
-         CASE
-           WHEN LOWER(name) LIKE '%nail%' THEN 'low'
-           WHEN LOWER(name) LIKE '%haircut%' THEN 'medium'
-           WHEN LOWER(name) LIKE '%full groom%' THEN 'high'
-           WHEN LOWER(name) LIKE '%bath%' THEN 'medium'
-           WHEN LOWER(name) LIKE '%teeth%' THEN 'low'
-           ELSE 'medium'
-         END AS priority
-       FROM services
-       ORDER BY service_id ASC`
+        service_id,
+        name AS service_name,
+        description,
+        duration_minutes AS expected_duration,
+        active,
+        priority
+      FROM services
+      ORDER BY service_id ASC`
     );
 
     res.status(200).json(rows);
@@ -36,21 +29,14 @@ router.get("/:id", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT
-         service_id,
-         name AS service_name,
-         description,
-         duration_minutes AS expected_duration,
-         active,
-         CASE
-           WHEN LOWER(name) LIKE '%nail%' THEN 'low'
-           WHEN LOWER(name) LIKE '%haircut%' THEN 'medium'
-           WHEN LOWER(name) LIKE '%full groom%' THEN 'high'
-           WHEN LOWER(name) LIKE '%bath%' THEN 'medium'
-           WHEN LOWER(name) LIKE '%teeth%' THEN 'low'
-           ELSE 'medium'
-         END AS priority
-       FROM services
-       WHERE service_id = ?`,
+        service_id,
+        name AS service_name,
+        description,
+        duration_minutes AS expected_duration,
+        active,
+        priority
+      FROM services
+      WHERE service_id = ?`,
       [req.params.id]
     );
 

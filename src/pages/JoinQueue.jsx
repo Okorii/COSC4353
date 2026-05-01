@@ -3,6 +3,7 @@ import { apiUrl } from "../lib/api.js";
 import {
   clearStoredQueueState,
   getStoredQueueOwnerEmail,
+  getStoredQueueEntryId,
   setStoredQueueState,
 } from "../lib/userQueueStorage.js";
 
@@ -111,10 +112,15 @@ export default function JoinQueue({ goToStatus, goToUserDashboard }) {
     [services, serviceId],
   );
 
-  const estWaitMinutes = queue.reduce((total, entry) => {
-    const service = services.find(
-      (s) => String(s.serviceId) === String(entry.serviceId)
-    );
+  const currentEntryId = getStoredQueueEntryId();
+
+  const estWaitMinutes = queue
+    .filter((entry) => entry.status === "WAITING" || entry.status === "SERVING")
+    .filter((entry) => Number(entry.id) !== Number(currentEntryId))
+    .reduce((total, entry) => {
+      const service = services.find(
+        (s) => String(s.serviceId) === String(entry.serviceId)
+      );
 
     return total + (service?.expectedDuration || 0);
   }, 0);
