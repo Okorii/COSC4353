@@ -10,6 +10,7 @@ function createEmptyQueueInfo() {
   return {
     entryId: null,
     serviceName: "",
+    serviceDuration: 0,
     petName: "",
     position: 0,
     totalInQueue: 0,
@@ -196,6 +197,7 @@ export default function UserDashboardPage({
           nextQueueInfo = {
             entryId: queueEntryData.id,
             serviceName: queueEntryData.serviceName || `Service ${queueEntryData.serviceId}`,
+            serviceDuration: duration,
             petName: queueEntryData.petName || "",
             position,
             totalInQueue: queueListData.length,
@@ -320,6 +322,11 @@ export default function UserDashboardPage({
                 <p className="dashboard-meta">
                   <span className="dashboard-muted">Service Type:</span>{" "}
                   <strong>{queueInfo.serviceName || "--"}</strong>
+                </p>
+
+                <p className="dashboard-meta">
+                  <span className="dashboard-muted">Service Duration:</span>{" "}
+                  <strong>{queueInfo.entryId ? `${queueInfo.serviceDuration} min` : "--"}</strong>
                 </p>
                 <p className="dashboard-meta">
                   <span className="dashboard-muted">Pet:</span>{" "}

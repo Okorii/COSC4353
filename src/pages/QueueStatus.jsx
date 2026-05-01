@@ -8,6 +8,7 @@ export default function QueueStatus({goToUserDashboard}) {
   const [queueInfo, setQueueInfo] = useState({
     entryId: null,
     serviceName: "",
+    serviceDuration: 0,
     petName: "",
     position: 0,
     totalInQueue: 0,
@@ -38,40 +39,43 @@ export default function QueueStatus({goToUserDashboard}) {
 
       const queueRes = await fetch("http://localhost:3001/api/queue-management");
       const queueData = await queueRes.json();
-
-      const index = Array.isArray(queueData)
-        ? queueData.findIndex((e) => Number(e.id) === Number(entry.id))
-        : -1;
-
-        const position = index >= 0 ? index + 1 : 0;
-        const duration = Number(entry.expectedDuration || 0);
-        const peopleAhead = Math.max(position - 1, 0);
-        const etaMinutes = peopleAhead * duration;
+      
+      const activeQueue = Array.isArray(queueData)
+        ? queueData.filter((e) => e.status === "WAITING" || e.status === "SERVING")
+        : [];
+      
+      const index = activeQueue.findIndex((e) => Number(e.id) === Number(entry.id));
+      
+      const position = index >= 0 ? index + 1 : 0;
+      const duration = Number(entry.expectedDuration || 0);
+      const peopleAhead = Math.max(position - 1, 0);
+      const etaMinutes = peopleAhead * duration;
         
-        setQueueInfo({
-          entryId: entry.id,
-          serviceName: entry.serviceName || `Service ${entry.serviceId}`,
-          petName: entry.petName,
-          position,
-          totalInQueue: Array.isArray(queueData) ? queueData.length : 0,
-          etaMinutes,
-          status:
-            entry.status === "SERVED"
-              ? "SERVED"
-              : position === 1
-              ? "SERVING"
-              : position === 2
-              ? "ALMOST_READY"
-              : "WAITING",
-          lastUpdated: new Date(),
-        });
+      setQueueInfo({
+        entryId: entry.id,
+        serviceName: entry.serviceName || `Service ${entry.serviceId}`,
+        serviceDuration: duration,
+        petName: entry.petName,
+        position,
+        totalInQueue: activeQueue.length,
+        etaMinutes,
+        status:
+          entry.status === "SERVED" && position === 0
+            ? "SERVED"
+            : position === 1
+            ? "SERVING"
+            : position === 2
+            ? "ALMOST_READY"
+            : "WAITING",
+        lastUpdated: new Date(),
+      });
 
       if (showNotification) {
         let message =
           "You’re in the queue. We’ll notify you when you’re almost ready.";
         let type = "info";
 
-        if (entry.status === "SERVED") {
+        if (entry.status === "SERVED" && position === 0) {
           message = "Ready for pickup! Please come to the front desk.";
           type = "success";
         } else if (index === 0) {
@@ -107,6 +111,7 @@ export default function QueueStatus({goToUserDashboard}) {
     setQueueInfo({
       entryId: null,
       serviceName: "",
+      serviceDuration: 0,
       petName: "",
       position: 0,
       totalInQueue: 0,
@@ -213,26 +218,34 @@ export default function QueueStatus({goToUserDashboard}) {
         </div>
       ) : (
         <>
-          <div style={styles.summaryGrid}>
-            <div style={styles.statCard}>
-              <span style={styles.label}>Pet</span>
-              <span style={styles.value}>{queueInfo.petName || "N/A"}</span>
-            </div>
-            <div style={styles.statCard}>
-              <span style={styles.label}>Service</span>
-              <span style={styles.value}>{queueInfo.serviceName || "N/A"}</span>
-            </div>
-            <div style={styles.statCard}>
-              <span style={styles.label}>Position</span>
-              <span style={styles.value}>
-                #{queueInfo.position || 0} of {queueInfo.totalInQueue || 0}
-              </span>
-            </div>
-            <div style={styles.statCard}>
-              <span style={styles.label}>Estimated Wait</span>
-              <span style={styles.value}>{queueInfo.etaMinutes || 0} min</span>
-            </div>
+         <div style={styles.summaryGrid}>
+          <div style={styles.statCard}>
+            <span style={styles.label}>Pet</span>
+            <span style={styles.value}>{queueInfo.petName || "N/A"}</span>
           </div>
+
+          <div style={styles.statCard}>
+            <span style={styles.label}>Service</span>
+            <span style={styles.value}>{queueInfo.serviceName || "N/A"}</span>
+          </div>
+
+          <div style={styles.statCard}>
+            <span style={styles.label}>Service Duration</span>
+            <span style={styles.value}>{queueInfo.serviceDuration || 0} min</span>
+          </div>
+
+          <div style={styles.statCard}>
+            <span style={styles.label}>Position</span>
+            <span style={styles.value}>
+              #{queueInfo.position || 0} of {queueInfo.totalInQueue || 0}
+            </span>
+          </div>
+
+          <div style={styles.statCard}>
+            <span style={styles.label}>Estimated Wait</span>
+            <span style={styles.value}>{queueInfo.etaMinutes || 0} min</span>
+          </div>
+        </div>
 
           <div style={styles.grid}>
             <div style={styles.card}>
@@ -348,7 +361,7 @@ const styles = {
 
   summaryGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
+    gridTemplateColumns: "repeat(5, 1fr)",
     gap: 12,
     marginBottom: 16,
   },

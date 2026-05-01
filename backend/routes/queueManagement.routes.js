@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
         s.priority
       FROM queue_entries qe
       JOIN services s ON qe.service_id = s.service_id
-      WHERE qe.status IN ('WAITING', 'SERVING', 'SERVED')
+      WHERE qe.status IN ('WAITING', 'SERVING')
       ORDER BY qe.joined_at ASC
     `);
 
