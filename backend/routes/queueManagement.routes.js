@@ -159,7 +159,7 @@ router.post("/serve-next", async (req, res) => {
   [next.petName, next.ownerName, next.serviceId]
 );
 
-  next.status = "SERVED";
+  next.status = "SERVING";
 
   res.json({ message: "Serving next user", served: next });
 } catch (error) {
