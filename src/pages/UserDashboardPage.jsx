@@ -55,6 +55,14 @@ function formatHistoryItem(item) {
   return `${petName} - ${serviceName} (${outcome})`;
 }
 
+function formatNotificationItem(item) {
+  if (!item) {
+    return "No notifications found";
+  }
+
+  return item.message || item.text || JSON.stringify(item);
+}
+
 function normalizeService(service) {
   const rawName = service.service_name ?? service.serviceName ?? service.name ?? "Unknown Service";
   return {
@@ -225,24 +233,37 @@ export default function UserDashboardPage({
     : "--";
 
   const latestNotification = useMemo(() => {
-    if (queueInfo.entryId) {
-      return buildQueueNotification(queueInfo);
+    if (queueInfo.entryId || notifications.length > 0) {
+      const queueNotification = queueInfo.entryId
+        ? [{
+            id: `queue-${queueInfo.entryId}-${queueInfo.status}-${queueInfo.position}`,
+            text: buildQueueNotification(queueInfo),
+          }]
+        : [];
+
+      const userNotifications = notifications.map((item, index) => ({
+        ...item,
+        id: item.id ?? `notification-${index}`,
+        text: formatNotificationItem(item),
+      }));
+
+      return [...queueNotification, ...userNotifications]
+        .slice(0, 3)
+        .map((item) => item.text);
     }
 
-    if (notifications.length === 0) {
-      return "No notifications found";
-    }
-
-    return notifications[0].message || JSON.stringify(notifications[0]);
+    return ["No notifications found"];
   }, [notifications, queueInfo]);
 
-  const latestHistory = useMemo(() => {
+  const recentHistory = useMemo(() => {
     if (history.length === 0) {
-      return "No history found";
+      return ["No history found"];
     }
 
-    const sortedHistory = [...history].sort((a, b) => b.date.localeCompare(a.date));
-    return formatHistoryItem(sortedHistory[0]);
+    return [...history]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 3)
+      .map((item) => formatHistoryItem(item));
   }, [history]);
 
   const openJoinQueueForService = (serviceId) => {
@@ -312,7 +333,9 @@ export default function UserDashboardPage({
           >
             <h2>Notifications</h2>
             <ul className="dashboard-list">
-              <li>{latestNotification}</li>
+              {latestNotification.map((item, index) => (
+                <li key={`${item}-${index}`}>{item}</li>
+              ))}
             </ul>
           </div>
 
@@ -330,7 +353,9 @@ export default function UserDashboardPage({
           >
             <h2>History</h2>
             <ul className="dashboard-list">
-              <li>{latestHistory}</li>
+              {recentHistory.map((item, index) => (
+                <li key={`${item}-${index}`}>{item}</li>
+              ))}
             </ul>
           </div>
 
