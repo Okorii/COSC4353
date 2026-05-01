@@ -55,9 +55,9 @@ export default function Reporting() {
       <div style={container}>
         <div style={header}>
           <div>
-            <div style={{ fontSize: 16, opacity: 0.85 }}>Admin Reporting</div>
-            <div style={{ fontWeight: 700, marginTop: 6 }}>
-              QueueSmart Reports
+            <div style={{ color: "#14532d", fontSize: 28, fontWeight: 800, opacity: 0.85 }}>Reports</div>
+            <div style={{ color: "#787b80", fontSize: 16, fontWeight: 500, marginTop: 6 }}>
+              View reports on queue and service activity. 
             </div>
           </div>
           {/* Filters + Export */}
@@ -75,7 +75,7 @@ export default function Reporting() {
             </select>
 
             <button onClick={exportCsv} style={button}>
-              Export CSV
+              Export CSV➜]
             </button>
           </div>
         </div>
@@ -179,7 +179,6 @@ function ReportTable({ title, columns, rows }) {
 const page = {
   minHeight: "100vh",
   width: "100%",
-  background: "#24243a",
   color: "#ffffff",
   fontFamily: "system-ui, Arial",
   padding: 16,
@@ -200,17 +199,15 @@ const header = {
   marginBottom: 18,
   padding: "18px 20px",
   borderRadius: 14,
-  background: "#8f8f8f",
   color: "#000000",
-  boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
 };
 
 const selectStyle = {
   padding: "10px 12px",
   borderRadius: 10,
-  border: "2px solid #ffffff",
-  background: "#ffffff",
-  color: "#000000",
+  border: "1px solid #a9cbb5",
+  background: "#def4d8c0",
+  color: "#3f5e36",
   fontWeight: 600,
 };
 
@@ -218,7 +215,7 @@ const button = {
   padding: "10px 16px",
   borderRadius: 10,
   border: "none",
-  background: "#2fa043",
+  background: "#2f31a0",
   color: "#ffffff",
   cursor: "pointer",
   fontWeight: 800,
@@ -243,8 +240,8 @@ const cards = {
 const card = {
   padding: 18,
   borderRadius: 14,
-  border: "2px solid #ffffff",
-  background: "#8f8f8f",
+  border: "1px solid #efecec",
+  background: "#def4d8a0",
   color: "#000000",
   boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
 };
@@ -265,7 +262,7 @@ const cardNumber = {
 const tableBox = {
   borderRadius: 14,
   overflowX: "auto",
-  border: "2px solid #ffffff",
+  border: "1px solid #efecec",
   background: "#8f8f8f",
   color: "#000000",
   marginBottom: 18,
@@ -274,18 +271,17 @@ const tableBox = {
 
 const tableTitle = {
   padding: "14px 16px",
-  fontWeight: 900,
-  background: "#707070",
+  fontWeight: 800,
+  background: "#3f5e36",
   color: "#ffffff",
-  borderBottom: "2px solid #ffffff",
 };
 
 const th = {
   padding: "12px 16px",
   textAlign: "left",
-  background: "#d9e6f7",
-  color: "#000000",
-  fontWeight: 900,
+  background: "#def4d8c0",
+  color: "#3f5e36",
+  fontWeight: 700,
 };
 
 const td = {
