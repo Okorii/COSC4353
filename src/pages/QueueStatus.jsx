@@ -55,14 +55,21 @@ export default function QueueStatus() {
         });
 
       if (showNotification) {
-        let message = "You’re in the queue. We’ll notify you when you’re almost ready.";
+        let message =
+          "You’re in the queue. We’ll notify you when you’re almost ready.";
         let type = "info";
 
         if (entry.status === "SERVED") {
           message = "Ready for pickup! Please come to the front desk.";
           type = "success";
+<<<<<<< Updated upstream
         } else if (entry.status === "SERVING" || index === 0) {
           message = "It’s your turn! Grooming started.";
+=======
+        } else if (index === 0) {
+          message =
+            "It’s your turn! Grooming started. We’ll notify you when your pet is ready for pickup.";
+>>>>>>> Stashed changes
           type = "success";
         } else if (index === 1) {
           message = "You’re next in line. Please be near the store.";
@@ -159,7 +166,7 @@ export default function QueueStatus() {
     }
   }
 
-  const isInQueue = queueInfo.position > 0;
+  const isInQueue = queueInfo.position > 0 || queueInfo.status === "SERVED";
 
   return (
     <div style={styles.page}>
@@ -177,10 +184,7 @@ export default function QueueStatus() {
       {!isInQueue ? (
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Not currently in a queue</h2>
-          <p style={styles.cardText}>
-            Join a service queue to see your pet’s status here.
-          </p>
-
+          <p style={styles.cardText}>Join a service queue to see your pet’s status here.</p>
           <button style={styles.primaryBtn} onClick={refreshStatus}>
             Refresh Status
           </button>
@@ -192,19 +196,16 @@ export default function QueueStatus() {
               <span style={styles.label}>Pet</span>
               <span style={styles.value}>{queueInfo.petName || "N/A"}</span>
             </div>
-
             <div style={styles.statCard}>
               <span style={styles.label}>Service</span>
               <span style={styles.value}>{queueInfo.serviceName || "N/A"}</span>
             </div>
-
             <div style={styles.statCard}>
               <span style={styles.label}>Position</span>
               <span style={styles.value}>
                 #{queueInfo.position || 0} of {queueInfo.totalInQueue || 0}
               </span>
             </div>
-
             <div style={styles.statCard}>
               <span style={styles.label}>Estimated Wait</span>
               <span style={styles.value}>{queueInfo.etaMinutes || 0} min</span>
@@ -214,12 +215,10 @@ export default function QueueStatus() {
           <div style={styles.grid}>
             <div style={styles.card}>
               <h2 style={styles.cardTitle}>Current Queue Details</h2>
-
               <div style={styles.row}>
                 <span style={styles.label}>Current Status</span>
                 <span style={styles.value}>{statusLabel}</span>
               </div>
-
               <div style={styles.row}>
                 <span style={styles.label}>Entry ID</span>
                 <span style={styles.value}>{queueInfo.entryId}</span>
@@ -229,7 +228,6 @@ export default function QueueStatus() {
                 <div style={styles.progressWrap}>
                   <div style={{ ...styles.progressBar, width: `${progress * 100}%` }} />
                 </div>
-
                 <div style={styles.progressHint}>
                   Last updated: {queueInfo.lastUpdated.toLocaleTimeString()}
                 </div>
@@ -239,7 +237,6 @@ export default function QueueStatus() {
                 <button style={styles.primaryBtn} onClick={refreshStatus}>
                   Refresh Status
                 </button>
-
                 <button style={styles.ghostBtn} onClick={leaveQueue}>
                   Leave Queue
                 </button>
@@ -457,11 +454,7 @@ const styles = {
     borderRadius: 999,
     marginTop: 4,
     background:
-      type === "success"
-        ? "#10b981"
-        : type === "warning"
-        ? "#f59e0b"
-        : "#3b82f6",
+      type === "success" ? "#10b981" : type === "warning" ? "#f59e0b" : "#3b82f6",
   }),
 
   notifText: {
